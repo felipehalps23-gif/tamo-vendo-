@@ -1,0 +1,26 @@
+{
+  "name": "servicos-homologacao",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "test": "node --test",
+    "test:e2e": "playwright test",
+    "lint": "eslint . --max-warnings=0",
+    "check": "npm run lint && npm test",
+    "sandbox:event": "node --env-file=.env scripts/sandbox-event.js",
+    "env:init": "node scripts/init-env.js",
+    "quality:verify": "node scripts/verify-quality.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.63.0",
+    "axe-core": "^4.13.0",
+    "eslint": "^9.39.0",
+    "globals": "^16.4.0"
+  }
+}
