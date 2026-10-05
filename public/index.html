@@ -10,39 +10,47 @@
 </head>
 <body>
   <a class="skip" href="#main">Ir para o conteúdo</a>
-  <div class="environment" role="note"><strong>Ambiente de homologação</strong> — dados fictícios e pagamentos simulados. Sem cobrança real.</div>
-  <header><span class="brand">Serviços de processos</span><span>Protótipo para validação</span></header>
+  <div class="environment" id="environment-note" role="note" hidden><strong>Ambiente de homologação</strong> — dados fictícios e pagamentos simulados. Sem cobrança real.</div>
+  <header><span class="brand">Serviços de processos</span><span id="header-note" data-mode-copy hidden>Protótipo para validação</span></header>
   <main id="main">
-    <div class="intro"><h1>Consulte ou inicie<br>uma solicitação.</h1><p>Teste os fluxos de consulta e abertura. Nesta etapa, os resultados são demonstrativos e não têm validade institucional.</p></div>
+    <div class="intro"><h1>Consulte ou inicie<br>uma solicitação.</h1><p id="intro-note" data-mode-copy hidden>Teste os fluxos de consulta e abertura. Nesta etapa, os resultados são demonstrativos e não têm validade institucional.</p></div>
     <div class="workspace">
-      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li>Escolha o serviço e preencha os dados de teste.</li><li>Receba uma solicitação de pagamento simulado.</li><li>Acompanhe a confirmação e o resultado fictício.</li></ol><p>Use somente informações fictícias. O CPF de exemplo está disponível no formulário.</p><p>Identidade visual provisória, sem vínculo ou chancela institucional.</p></aside>
+      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li id="step-data" data-mode-copy hidden>Escolha o serviço e preencha os dados de teste.</li><li id="step-payment" data-mode-copy hidden>Receba uma solicitação de pagamento simulado.</li><li id="step-result" data-mode-copy hidden>Acompanhe a confirmação e o resultado fictício.</li></ol><p id="data-note" data-mode-copy hidden>Use somente informações fictícias. O CPF de exemplo está disponível no formulário.</p><p>Identidade visual provisória, sem vínculo ou chancela institucional.</p></aside>
       <section class="panel" aria-labelledby="form-title">
         <h2 id="form-title">Nova solicitação</h2>
         <p id="loading" role="status">Carregando serviços…</p>
         <form id="service-form" hidden>
           <fieldset><legend>Escolha o serviço</legend>
-            <label class="option"><input type="radio" name="serviceType" value="CONSULTA" checked><span><strong>Consulta</strong><small>Resultado demonstrativo</small></span><span id="consulta-price"></span></label>
-            <label class="option"><input type="radio" name="serviceType" value="ABERTURA"><span><strong>Abertura</strong><small>Protocolo fictício</small></span><span id="abertura-price"></span></label>
+            <label class="option"><input type="radio" name="serviceType" value="CONSULTA" checked><span><strong>Consulta</strong><small id="consulta-note">Resultado demonstrativo</small></span><span id="consulta-price"></span></label>
+            <label class="option"><input type="radio" name="serviceType" value="ABERTURA"><span><strong>Abertura</strong><small id="abertura-note">Protocolo fictício</small></span><span id="abertura-price"></span></label>
           </fieldset>
-          <label for="name">Nome fictício</label><input id="name" name="name" required minlength="3" maxlength="120" autocomplete="off" value="Pessoa de Teste">
-          <label for="cpf">CPF de teste</label><input id="cpf" name="cpf" required inputmode="numeric" maxlength="14" aria-describedby="cpf-help" autocomplete="off" value="529.982.247-25">
+          <label id="name-label" for="name">Nome fictício</label><input id="name" name="name" required minlength="3" maxlength="120" autocomplete="off" value="Pessoa de Teste">
+          <label id="cpf-label" for="cpf">CPF de teste</label><input id="cpf" name="cpf" required inputmode="numeric" maxlength="14" aria-describedby="cpf-help" autocomplete="off" value="529.982.247-25">
           <p class="hint" id="cpf-help">Exemplo apenas para validar os dígitos do CPF. Não use dados reais.</p>
-          <div id="description-group" hidden><label for="description">Descrição fictícia da abertura</label><textarea id="description" name="description" minlength="10" maxlength="2000" rows="4"></textarea></div>
+          <div id="description-group" hidden><label id="description-label" for="description">Descrição fictícia da abertura</label><textarea id="description" name="description" minlength="10" maxlength="2000" rows="4"></textarea></div>
           <button type="submit" id="submit">Criar consulta simulada</button>
         </form>
         <p id="error" class="error" role="alert" hidden></p>
         <section id="request" hidden aria-labelledby="request-title" tabindex="-1">
           <h2 id="request-title">Acompanhe sua solicitação</h2>
-          <dl><dt>Protocolo de teste</dt><dd id="request-id"></dd><dt>Serviço</dt><dd id="request-type"></dd><dt>Valor simulado</dt><dd id="request-amount"></dd><dt>Situação</dt><dd><span id="request-status" role="status" aria-live="polite"></span></dd></dl>
+          <dl><dt id="protocol-label">Protocolo de teste</dt><dd id="request-id"></dd><dt>Serviço</dt><dd id="request-type"></dd><dt id="amount-label">Valor simulado</dt><dd id="request-amount"></dd><dt>Situação</dt><dd><span id="request-status" role="status" aria-live="polite"></span></dd></dl>
           <p id="pending-note">Aguardando confirmação do simulador. Não há boleto, PIX ou cobrança real.</p>
-          <details><summary>Identificador para a equipe de homologação</summary><p id="payment-id" class="identifier"></p></details>
-          <div id="result" hidden><h3>Resultado fictício</h3><p id="result-message"></p><ul id="result-data"></ul></div>
+          <section id="pix-payment" hidden aria-labelledby="pix-title">
+            <h3 id="pix-title">Pagamento via PIX</h3><p>Use o aplicativo do seu banco para realizar o pagamento.</p>
+            <p>Valor: <strong id="pix-amount"></strong></p>
+            <label for="pix-code">Código PIX</label><textarea id="pix-code" readonly rows="4" spellcheck="false"></textarea>
+            <button type="button" id="copy-pix">Copiar código PIX</button><p id="copy-status" role="status" aria-live="polite"></p>
+            <p id="pix-expiration"></p>
+          </section>
+          <details><summary id="payment-label">Identificador para a equipe de homologação</summary><p id="payment-id" class="identifier"></p></details>
+          <div id="result" hidden><h3 id="result-title">Resultado fictício</h3><p id="result-message"></p><ul id="result-data"></ul></div>
           <div class="actions"><button type="button" id="refresh">Atualizar situação</button><button type="button" id="new-request" class="secondary">Nova solicitação</button></div>
-          <p class="hint">Esta sessão permite acompanhar seus dados de teste nesta aba. Ao encerrar a sessão, o acesso não pode ser recuperado pela interface.</p>
+          <p id="polling-note" class="hint" role="status" hidden></p>
+          <p id="session-note" class="hint">Esta sessão permite acompanhar seus dados de teste nesta aba. Ao encerrar a sessão, o acesso não pode ser recuperado pela interface.</p>
         </section>
       </section>
     </div>
   </main>
-  <footer>Homologação • Nenhum processo oficial é consultado ou aberto neste ambiente.</footer>
+  <footer id="footer-note" data-mode-copy hidden>Homologação • Nenhum processo oficial é consultado ou aberto neste ambiente.</footer>
 </body>
 </html>

@@ -2,9 +2,79 @@ const byId = id => document.getElementById(id);
 const form = byId('service-form');
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value / 100);
 const labels = { PENDING: 'Aguardando confirmação simulada', PAID: 'Pagamento simulado confirmado', FAILED: 'Pagamento simulado recusado', REFUNDED: 'Pagamento simulado reembolsado' };
+const bravoLabels = { PENDING: 'Aguardando pagamento', PAID: 'Pagamento confirmado', FAILED: 'Pagamento não confirmado', EXPIRED: 'Pagamento expirado', REFUNDED: 'Pagamento reembolsado' };
+let paymentsMode;
 let token;
 let currentId;
 let pending;
+let pollTimer;
+let pollId;
+let pollDeadline;
+let requestController;
+let refreshing = false;
+
+function applyMode(mode) {
+  if (!['SANDBOX', 'BRAVOPAY'].includes(mode)) throw new Error('Modo de pagamento indisponível.');
+  paymentsMode = mode;
+  if (mode === 'BRAVOPAY') {
+    const copy = {
+      'environment-note': 'Ambiente de homologação — pagamentos via BravoPay. Cobranças reais.',
+      'header-note': 'Consulta e abertura', 'intro-note': 'Escolha o serviço, preencha seus dados e acompanhe o pagamento.',
+      'step-data': 'Escolha o serviço e preencha seus dados.', 'step-payment': 'Receba o código PIX para pagamento.',
+      'step-result': 'Acompanhe a confirmação do pagamento e sua solicitação.', 'data-note': 'Confira seus dados antes de criar a solicitação.',
+      'consulta-note': 'Solicitação de consulta', 'abertura-note': 'Solicitação de abertura',
+      'name-label': 'Nome', 'cpf-label': 'CPF', 'cpf-help': 'Informe seu CPF com ou sem pontuação.', 'description-label': 'Descrição da abertura',
+      'protocol-label': 'Protocolo', 'amount-label': 'Valor', 'payment-label': 'Identificador da solicitação',
+      'pending-note': 'Aguardando a confirmação do pagamento.', 'result-title': 'Resultado',
+      'session-note': 'Esta sessão permite acompanhar sua solicitação nesta aba. Ao encerrar a sessão, o acesso não pode ser recuperado pela interface.',
+      'footer-note': 'Pagamentos via BravoPay. A execução dos serviços depende da integração institucional.'
+    };
+    for (const [id, text] of Object.entries(copy)) byId(id).textContent = text;
+    byId('name').value = ''; byId('cpf').value = '';
+  }
+  byId('environment-note').hidden = false;
+  document.querySelectorAll('[data-mode-copy]').forEach(element => { element.hidden = false; });
+  updateService();
+}
+
+function stopPolling() {
+  clearTimeout(pollTimer); pollTimer = undefined; pollId = undefined;
+  requestController?.abort();
+  byId('polling-note').hidden = true;
+}
+
+function schedulePolling(data) {
+  if (paymentsMode !== 'BRAVOPAY' || data.status !== 'PENDING') { stopPolling(); return; }
+  if (pollId !== data.id) { stopPolling(); pollId = data.id; pollDeadline = Date.now() + 10 * 60 * 1000; }
+  clearTimeout(pollTimer);
+  const id = pollId;
+  pollTimer = setTimeout(async () => {
+    if (id !== currentId || id !== pollId) return;
+    if (Date.now() >= pollDeadline) {
+      pollTimer = undefined;
+      byId('polling-note').textContent = 'Atualização automática encerrada. Use “Atualizar situação” para consultar o pagamento.';
+      byId('polling-note').hidden = false; return;
+    }
+    await refreshStatus(id);
+  }, 5000);
+}
+
+async function refreshStatus(id = currentId) {
+  if (!id || refreshing) return;
+  refreshing = true; byId('refresh').disabled = true; clearError();
+  requestController = new AbortController();
+  const controller = requestController;
+  const timeout = setTimeout(() => controller.abort(new DOMException('A consulta demorou demais. Tente atualizar novamente.', 'TimeoutError')), 15000);
+  try {
+    const data = await api(`/api/services/${id}`, { signal: requestController.signal });
+    if (id === currentId) render(data);
+  } catch (err) {
+    if (err.name !== 'AbortError' && id === currentId) {
+      error(err.message);
+      if (pollId === id) schedulePolling({ id, status: 'PENDING' });
+    }
+  } finally { clearTimeout(timeout); refreshing = false; byId('refresh').disabled = false; }
+}
 
 async function api(path, options = {}) {
   const response = await fetch(path, { ...options, headers: { Authorization: `Bearer ${token}`, ...options.headers } });
@@ -24,28 +94,42 @@ function render(data) {
   byId('request-id').textContent = data.id;
   byId('request-type').textContent = data.serviceType === 'CONSULTA' ? 'Consulta' : 'Abertura';
   byId('request-amount').textContent = money(data.amount);
-  byId('request-status').textContent = labels[data.status] || 'Situação indisponível';
+  byId('request-status').textContent = (paymentsMode === 'BRAVOPAY' ? bravoLabels : labels)[data.status] || 'Situação indisponível';
   byId('payment-id').textContent = data.paymentId;
   byId('pending-note').hidden = data.status !== 'PENDING';
-  byId('result').hidden = !data.result;
+  const showPix = paymentsMode === 'BRAVOPAY' && data.provider === 'BRAVOPAY' && data.status === 'PENDING' && typeof data.pix?.copyPaste === 'string' && !!data.pix.copyPaste;
+  byId('pix-payment').hidden = !showPix;
+  if (byId('pix-code').value !== (showPix ? data.pix.copyPaste : '')) byId('copy-status').textContent = '';
+  byId('pix-code').value = showPix ? data.pix.copyPaste : '';
+  if (showPix) {
+    byId('pix-amount').textContent = money(data.amount);
+    const expiration = new Date(data.pix.expiresAt);
+    byId('pix-expiration').textContent = Number.isFinite(expiration.getTime())
+      ? `Vencimento do PIX: ${expiration.toLocaleString('pt-BR')}` : 'Vencimento do PIX: consulte a situação do pagamento.';
+  }
+  const result = paymentsMode === 'BRAVOPAY' && data.result?.fictitious ? null : data.result;
+  byId('result').hidden = !result;
   byId('result-data').replaceChildren();
-  if (data.result) {
-    byId('result-message').textContent = data.result.message;
-    const entries = data.result.processes || [{ protocol: data.result.protocol, status: 'Abertura fictícia registrada' }];
+  if (result) {
+    byId('result-message').textContent = result.message;
+    const entries = result.processes || [{ protocol: result.protocol, status: paymentsMode === 'SANDBOX' ? 'Abertura fictícia registrada' : 'Abertura registrada' }];
     for (const entry of entries) {
       const item = document.createElement('li');
       item.textContent = `${entry.protocol}: ${entry.status}`;
       byId('result-data').append(item);
     }
   }
+  schedulePolling(data);
 }
 
-form.addEventListener('change', () => {
+function updateService() {
   const opening = form.elements.serviceType.value === 'ABERTURA';
   byId('description-group').hidden = !opening;
   byId('description').required = opening;
-  byId('submit').textContent = opening ? 'Criar abertura simulada' : 'Criar consulta simulada';
-});
+  byId('submit').textContent = paymentsMode === 'BRAVOPAY'
+    ? (opening ? 'Criar abertura' : 'Criar consulta') : (opening ? 'Criar abertura simulada' : 'Criar consulta simulada');
+}
+form.addEventListener('change', updateService);
 
 form.addEventListener('submit', async event => {
   event.preventDefault(); clearError();
@@ -67,14 +151,20 @@ form.addEventListener('submit', async event => {
   finally { byId('submit').disabled = false; }
 });
 
-byId('refresh').addEventListener('click', async () => {
-  clearError(); byId('refresh').disabled = true;
-  try { render(await api(`/api/services/${currentId}`)); }
-  catch (err) { error(err.message); }
-  finally { byId('refresh').disabled = false; }
+byId('refresh').addEventListener('click', () => refreshStatus());
+
+byId('copy-pix').addEventListener('click', async () => {
+  const code = byId('pix-code').value;
+  if (!code || byId('pix-payment').hidden) return;
+  try { await navigator.clipboard.writeText(code); byId('copy-status').textContent = 'Código PIX copiado.'; }
+  catch {
+    byId('pix-code').focus(); byId('pix-code').select();
+    byId('copy-status').textContent = 'Não foi possível copiar automaticamente. Copie o código selecionado.';
+  }
 });
 
 byId('new-request').addEventListener('click', () => {
+  stopPolling(); byId('pix-code').value = ''; byId('pix-payment').hidden = true;
   sessionStorage.removeItem('sandbox-request'); currentId = null; pending = null;
   sessionStorage.removeItem('sandbox-pending');
   byId('request').hidden = true; form.hidden = false; clearError();
@@ -89,6 +179,7 @@ async function init() {
       sessionStorage.setItem('sandbox-session', token);
     }
     const catalog = await api('/api/catalog');
+    applyMode(catalog.paymentsMode);
     try {
       const savedPending = JSON.parse(sessionStorage.getItem('sandbox-pending'));
       if (/^[a-f\d]{64}$/.test(savedPending?.digest || '') && /^[a-f\d-]{36}$/.test(savedPending?.key || '')) pending = savedPending;
@@ -101,4 +192,5 @@ async function init() {
   } catch (err) { error(`${err.message} Verifique a conexão e recarregue a página.`); }
   finally { byId('loading').hidden = true; }
 }
+window.addEventListener('pagehide', stopPolling);
 init();

@@ -41,6 +41,10 @@ dt { color: #496175; } dd { margin: 0; font-weight: 600; overflow-wrap: anywhere
 summary { cursor: pointer; }
 .identifier { overflow-wrap: anywhere; font-size: .9rem; }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+#pix-payment { padding: 16px 0; border-top: 1px solid #c6d3df; border-bottom: 1px solid #c6d3df; margin: 20px 0; }
+#pix-title { margin-top: 0; }
+#pix-code { overflow-wrap: anywhere; resize: vertical; }
+#copy-pix { width: 100%; min-height: 52px; }
 footer { color: #496175; font-size: .875rem; margin-top: 28px; }
 .skip { position: absolute; left: 16px; top: -100px; background: white; padding: 12px; z-index: 2; }
 .skip:focus { top: 8px; }
