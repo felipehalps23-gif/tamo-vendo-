@@ -4,53 +4,53 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Serviços • Homologação</title>
+  <title>MeuINSS.net — Atendimento para aposentadoria</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Ir para o conteúdo</a>
-  <div class="environment" id="environment-note" role="note" hidden><strong>Ambiente de homologação</strong> — dados fictícios e pagamentos simulados. Sem cobrança real.</div>
-  <header><span class="brand">Serviços de processos</span><span id="header-note" data-mode-copy hidden>Protótipo para validação</span></header>
+  <header><span class="brand">MeuINSS.net</span><span>Atendimento para aposentadoria</span></header>
   <main id="main">
-    <div class="intro"><h1>Consulte ou inicie<br>uma solicitação.</h1><p id="intro-note" data-mode-copy hidden>Teste os fluxos de consulta e abertura. Nesta etapa, os resultados são demonstrativos e não têm validade institucional.</p></div>
+    <div class="intro"><h1>Consulta e entrada para aposentadoria</h1><p>Consulte informações e solicite atendimento para iniciar a organização do seu pedido de aposentadoria.</p><p class="explanation">Este sistema facilita a consulta de informações e o envio dos dados necessários para iniciar seu atendimento relacionado à aposentadoria.</p></div>
     <div class="workspace">
-      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li id="step-data" data-mode-copy hidden>Escolha o serviço e preencha os dados de teste.</li><li id="step-payment" data-mode-copy hidden>Receba uma solicitação de pagamento simulado.</li><li id="step-result" data-mode-copy hidden>Acompanhe a confirmação e o resultado fictício.</li></ol><p id="data-note" data-mode-copy hidden>Use somente informações fictícias. O CPF de exemplo está disponível no formulário.</p><p>Identidade visual provisória, sem vínculo ou chancela institucional.</p></aside>
+      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li>Escolha o serviço desejado.</li><li>Informe seus dados.</li><li>Confira o valor do serviço antes de continuar.</li><li>Realize o pagamento.</li><li>Acompanhe sua solicitação pelo protocolo gerado.</li></ol><p>O valor cobrado é uma taxa de serviço pelo atendimento de MeuINSS.net.</p></aside>
       <section class="panel" aria-labelledby="form-title">
         <h2 id="form-title">Nova solicitação</h2>
         <p id="loading" role="status">Carregando serviços…</p>
         <form id="service-form" hidden>
           <fieldset><legend>Escolha o serviço</legend>
-            <label class="option"><input type="radio" name="serviceType" value="CONSULTA" checked><span><strong>Consulta</strong><small id="consulta-note">Resultado demonstrativo</small></span><span id="consulta-price"></span></label>
-            <label class="option"><input type="radio" name="serviceType" value="ABERTURA"><span><strong>Abertura</strong><small id="abertura-note">Protocolo fictício</small></span><span id="abertura-price"></span></label>
+            <label class="option"><input type="radio" name="serviceType" value="CONSULTA" checked><span><strong>Consulta</strong><small id="consulta-note">Solicite uma consulta para verificar as informações relacionadas ao seu atendimento de aposentadoria.</small></span><span id="consulta-price"></span></label>
+            <label class="option"><input type="radio" name="serviceType" value="ABERTURA"><span><strong>Iniciar atendimento</strong><small id="abertura-note">Envie seus dados para iniciar o atendimento e a preparação da sua solicitação de aposentadoria.</small></span><span id="abertura-price"></span></label>
           </fieldset>
-          <label id="name-label" for="name">Nome fictício</label><input id="name" name="name" required minlength="3" maxlength="120" autocomplete="off" value="Pessoa de Teste">
-          <label id="cpf-label" for="cpf">CPF de teste</label><input id="cpf" name="cpf" required inputmode="numeric" maxlength="14" aria-describedby="cpf-help" autocomplete="off" value="529.982.247-25">
-          <p class="hint" id="cpf-help">Exemplo apenas para validar os dígitos do CPF. Não use dados reais.</p>
-          <div id="description-group" hidden><label id="description-label" for="description">Descrição fictícia da abertura</label><textarea id="description" name="description" minlength="10" maxlength="2000" rows="4"></textarea></div>
-          <button type="submit" id="submit">Criar consulta simulada</button>
+          <label id="name-label" for="name">Nome completo</label><input id="name" name="name" required minlength="3" maxlength="120" autocomplete="name">
+          <label id="cpf-label" for="cpf">CPF</label><input id="cpf" name="cpf" required inputmode="numeric" maxlength="14" aria-describedby="cpf-help" autocomplete="off">
+          <p class="hint" id="cpf-help">Informe seu CPF com ou sem pontuação.</p>
+          <div id="description-group" hidden><label id="description-label" for="description">Conte o que você precisa</label><textarea id="description" name="description" minlength="10" maxlength="2000" rows="4"></textarea></div>
+          <div class="review" role="note"><p><strong>Confira seus dados antes de continuar.</strong></p><p>Taxa de serviço: <strong id="service-fee"></strong>. Esse valor corresponde ao serviço escolhido.</p><p>Após a confirmação do pagamento, sua solicitação ficará disponível para acompanhamento.</p></div>
+          <button type="submit" id="submit">Solicitar consulta</button>
         </form>
         <p id="error" class="error" role="alert" hidden></p>
         <section id="request" hidden aria-labelledby="request-title" tabindex="-1">
           <h2 id="request-title">Acompanhe sua solicitação</h2>
-          <dl><dt id="protocol-label">Protocolo de teste</dt><dd id="request-id"></dd><dt>Serviço</dt><dd id="request-type"></dd><dt id="amount-label">Valor simulado</dt><dd id="request-amount"></dd><dt>Situação</dt><dd><span id="request-status" role="status" aria-live="polite"></span></dd></dl>
-          <p id="pending-note">Aguardando confirmação do simulador. Não há boleto, PIX ou cobrança real.</p>
+          <dl><dt id="protocol-label">Protocolo da solicitação</dt><dd id="request-id"></dd><dt>Serviço</dt><dd id="request-type"></dd><dt id="amount-label">Taxa de serviço</dt><dd id="request-amount"></dd><dt>Situação</dt><dd><span id="request-status" role="status" aria-live="polite"></span></dd></dl>
+          <p id="pending-note">Após a confirmação do pagamento, sua solicitação ficará disponível para acompanhamento.</p>
           <section id="pix-payment" hidden aria-labelledby="pix-title">
             <h3 id="pix-title">Pagamento via PIX</h3><p>Use o aplicativo do seu banco para realizar o pagamento.</p>
-            <p>Valor: <strong id="pix-amount"></strong></p>
+            <p>Taxa de serviço: <strong id="pix-amount"></strong></p>
             <label for="pix-code">Código PIX</label><textarea id="pix-code" readonly rows="4" spellcheck="false"></textarea>
             <button type="button" id="copy-pix">Copiar código PIX</button><p id="copy-status" role="status" aria-live="polite"></p>
             <p id="pix-expiration"></p>
           </section>
-          <details><summary id="payment-label">Identificador para a equipe de homologação</summary><p id="payment-id" class="identifier"></p></details>
-          <div id="result" hidden><h3 id="result-title">Resultado fictício</h3><p id="result-message"></p><ul id="result-data"></ul></div>
+          <details><summary id="payment-label">Identificador do pagamento</summary><p id="payment-id" class="identifier"></p></details>
+          <div id="result" hidden><h3 id="result-title">Informações da solicitação</h3><p id="result-message"></p><ul id="result-data"></ul></div>
           <div class="actions"><button type="button" id="refresh">Atualizar situação</button><button type="button" id="new-request" class="secondary">Nova solicitação</button></div>
           <p id="polling-note" class="hint" role="status" hidden></p>
-          <p id="session-note" class="hint">Esta sessão permite acompanhar seus dados de teste nesta aba. Ao encerrar a sessão, o acesso não pode ser recuperado pela interface.</p>
+          <p id="session-note" class="hint">Mantenha esta aba aberta para acompanhar sua solicitação. Se fechar a aba, o acesso por esta página será perdido.</p>
         </section>
       </section>
     </div>
   </main>
-  <footer id="footer-note" data-mode-copy hidden>Homologação • Nenhum processo oficial é consultado ou aberto neste ambiente.</footer>
+  <footer><p><strong>Responsável pelo serviço: MeuINSS.net</strong><br>Contato: <a href="mailto:inssnet@gmai.com">inssnet@gmai.com</a></p><p>Serviço independente, sem vínculo com o INSS ou o Governo Federal.</p><p class="disclaimer">Este serviço não substitui os canais oficiais do INSS ou do gov.br.</p></footer>
 </body>
 </html>

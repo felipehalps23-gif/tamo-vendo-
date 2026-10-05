@@ -36,13 +36,13 @@ test('Fluxos HTTP, persistência, pagamentos autenticados e deduplicação', asy
   };
   const event = (data, status = 'PAID') => ({ eventId: randomUUID(), paymentId: data.paymentId, status, amount: data.amount, currency: 'BRL' });
   try {
-    await t.test('catálogo e interface acessível identificam homologação', async () => {
+    await t.test('catalogo preserva sandbox e identifica o responsavel', async () => {
       const catalog = await call('/api/catalog');
       assert.equal(catalog.data.paymentsMode, 'SANDBOX');
       assert.deepEqual(catalog.data.prices, { CONSULTA: 3000, ABERTURA: 5000 });
       const page = await fetch(base);
       const html = await page.text();
-      assert.match(html, /lang="pt-BR"/); assert.match(html, /Ambiente de homologação/);
+      assert.match(html, /lang="pt-BR"/); assert.match(html, /MeuINSS.net/);
       assert.ok(page.headers.get('content-security-policy').includes("frame-ancestors 'none'"));
       const frontend = await (await fetch(`${base}/app.js`)).text();
       assert.ok(!frontend.includes('BRAVOPAY_'));

@@ -24,10 +24,10 @@ async function setup(page, options = {}) {
     await route.fulfill({ json: { ...service, status: calls.status, pix: options.noPix ? null : service.pix } });
   });
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Criar consulta', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Solicitar consulta', exact: true })).toBeVisible();
   await page.locator('#name').fill('Pessoa UI');
   await page.locator('#cpf').fill('52998224725');
-  await page.getByRole('button', { name: 'Criar consulta', exact: true }).click();
+  await page.getByRole('button', { name: 'Solicitar consulta', exact: true }).click();
   await expect(page.locator('#request-status')).toHaveText('Aguardando pagamento');
   return calls;
 }
@@ -78,7 +78,7 @@ test('Polling a cada 5s confirma PAID, esconde PIX e nunca cria outra cobrança'
   await accessibility(page);
 });
 
-for (const [status, label] of [['FAILED', 'Pagamento não confirmado'], ['EXPIRED', 'Pagamento expirado'], ['REFUNDED', 'Pagamento reembolsado']]) {
+for (const [status, label] of [['FAILED', 'Não foi possível confirmar o pagamento'], ['EXPIRED', 'Pagamento expirado'], ['REFUNDED', 'Pagamento reembolsado']]) {
   test(`Polling encerra em ${status}`, async ({ page }) => {
     await page.clock.install(); const calls = await setup(page); calls.status = status;
     await page.clock.runFor(5000);

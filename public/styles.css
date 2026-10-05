@@ -1,8 +1,7 @@
-:root { font-family: 'Segoe UI', Arial, sans-serif; color: #19354a; background: #f3f6f9; font-size: 16px; line-height: 1.55; }
+:root { font-family: 'Segoe UI', Arial, sans-serif; color: #19354a; background: #f3f6f9; font-size: 18px; line-height: 1.55; }
 * { box-sizing: border-box; }
 body { margin: 0; }
 [hidden] { display: none !important; }
-.environment { background: #ffeb9b; color: #493600; text-align: center; padding: 12px 20px; border-bottom: 1px solid #b49a45; }
 header, main, footer { max-width: 1120px; margin: auto; padding: 28px 32px; }
 header { display: flex; justify-content: space-between; gap: 20px; border-bottom: 1px solid #c6d3df; }
 .brand { font-weight: 700; font-size: 1.15rem; }
@@ -22,14 +21,14 @@ aside p { color: #496175; font-size: .95rem; }
 fieldset { border: 0; margin: 0 0 24px; padding: 0; }
 legend { font-weight: 600; margin-bottom: 12px; }
 label { display: block; font-weight: 600; margin-top: 16px; margin-bottom: 6px; }
-.option { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid #9eb4c5; border-radius: 4px; cursor: pointer; font-weight: 400; }
+.option { display: grid; grid-template-columns: 24px 1fr; align-items: start; gap: 12px; padding: 16px; border: 1px solid #9eb4c5; border-radius: 4px; cursor: pointer; font-weight: 400; }
 .option:has(input:checked) { border: 2px solid #166675; padding: 15px; background: #eef8fa; }
-.option > :last-child { margin-left: auto; white-space: nowrap; }
+.option > :last-child { grid-column: 2; white-space: nowrap; font-weight: 700; }
 small { display: block; color: #496175; }
 input:not([type=radio]), textarea { width: 100%; padding: 12px; font: inherit; border: 1px solid #819bab; border-radius: 4px; color: inherit; background: white; }
-input[type=radio] { width: 20px; height: 20px; accent-color: #166675; flex-shrink: 0; }
-.hint { font-size: .875rem; color: #496175; margin: 8px 0 16px; }
-button { font: inherit; font-weight: 600; background: #166675; color: white; border: 2px solid #166675; padding: 12px 20px; border-radius: 4px; cursor: pointer; margin-top: 12px; }
+input[type=radio] { width: 24px; height: 24px; accent-color: #166675; flex-shrink: 0; }
+.hint { font-size: 1rem; color: #496175; margin: 8px 0 16px; }
+button { min-height: 52px; font: inherit; font-weight: 600; background: #166675; color: white; border: 2px solid #166675; padding: 12px 20px; border-radius: 4px; cursor: pointer; margin-top: 12px; }
 button:hover { background: #0c4d59; }
 button:disabled { cursor: wait; opacity: .65; }
 .secondary { background: white; color: #166675; }
@@ -57,3 +56,10 @@ footer { color: #496175; font-size: .875rem; margin-top: 28px; }
   .intro { margin-bottom: 24px; }
   dl { grid-template-columns: 1fr; gap: 4px; } dd { margin-bottom: 12px; }
 }
+
+small { font-size: 1rem; }
+.review { border-left: 4px solid #166675; background: #eef8fa; padding: 4px 16px; }
+.intro .explanation { font-size: 1rem; }
+a { color: #125664; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.disclaimer { font-size: .9rem; }
+summary { padding: 12px 0; }

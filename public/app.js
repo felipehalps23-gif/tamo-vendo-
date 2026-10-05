@@ -1,8 +1,7 @@
 const byId = id => document.getElementById(id);
 const form = byId('service-form');
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value / 100);
-const labels = { PENDING: 'Aguardando confirmação simulada', PAID: 'Pagamento simulado confirmado', FAILED: 'Pagamento simulado recusado', REFUNDED: 'Pagamento simulado reembolsado' };
-const bravoLabels = { PENDING: 'Aguardando pagamento', PAID: 'Pagamento confirmado', FAILED: 'Pagamento não confirmado', EXPIRED: 'Pagamento expirado', REFUNDED: 'Pagamento reembolsado' };
+const labels = { PENDING: 'Aguardando pagamento', PAID: 'Pagamento confirmado', FAILED: 'Não foi possível confirmar o pagamento', EXPIRED: 'Pagamento expirado', REFUNDED: 'Pagamento reembolsado' };
 let paymentsMode;
 let token;
 let currentId;
@@ -16,24 +15,6 @@ let refreshing = false;
 function applyMode(mode) {
   if (!['SANDBOX', 'BRAVOPAY'].includes(mode)) throw new Error('Modo de pagamento indisponível.');
   paymentsMode = mode;
-  if (mode === 'BRAVOPAY') {
-    const copy = {
-      'environment-note': 'Ambiente de homologação — pagamentos via BravoPay. Cobranças reais.',
-      'header-note': 'Consulta e abertura', 'intro-note': 'Escolha o serviço, preencha seus dados e acompanhe o pagamento.',
-      'step-data': 'Escolha o serviço e preencha seus dados.', 'step-payment': 'Receba o código PIX para pagamento.',
-      'step-result': 'Acompanhe a confirmação do pagamento e sua solicitação.', 'data-note': 'Confira seus dados antes de criar a solicitação.',
-      'consulta-note': 'Solicitação de consulta', 'abertura-note': 'Solicitação de abertura',
-      'name-label': 'Nome', 'cpf-label': 'CPF', 'cpf-help': 'Informe seu CPF com ou sem pontuação.', 'description-label': 'Descrição da abertura',
-      'protocol-label': 'Protocolo', 'amount-label': 'Valor', 'payment-label': 'Identificador da solicitação',
-      'pending-note': 'Aguardando a confirmação do pagamento.', 'result-title': 'Resultado',
-      'session-note': 'Esta sessão permite acompanhar sua solicitação nesta aba. Ao encerrar a sessão, o acesso não pode ser recuperado pela interface.',
-      'footer-note': 'Pagamentos via BravoPay. A execução dos serviços depende da integração institucional.'
-    };
-    for (const [id, text] of Object.entries(copy)) byId(id).textContent = text;
-    byId('name').value = ''; byId('cpf').value = '';
-  }
-  byId('environment-note').hidden = false;
-  document.querySelectorAll('[data-mode-copy]').forEach(element => { element.hidden = false; });
   updateService();
 }
 
@@ -92,9 +73,9 @@ function render(data) {
   form.hidden = true;
   byId('request').hidden = false;
   byId('request-id').textContent = data.id;
-  byId('request-type').textContent = data.serviceType === 'CONSULTA' ? 'Consulta' : 'Abertura';
+  byId('request-type').textContent = data.serviceType === 'CONSULTA' ? 'Consulta' : 'Iniciar atendimento';
   byId('request-amount').textContent = money(data.amount);
-  byId('request-status').textContent = (paymentsMode === 'BRAVOPAY' ? bravoLabels : labels)[data.status] || 'Situação indisponível';
+  byId('request-status').textContent = labels[data.status] || 'Situação indisponível';
   byId('payment-id').textContent = data.paymentId;
   byId('pending-note').hidden = data.status !== 'PENDING';
   const showPix = paymentsMode === 'BRAVOPAY' && data.provider === 'BRAVOPAY' && data.status === 'PENDING' && typeof data.pix?.copyPaste === 'string' && !!data.pix.copyPaste;
@@ -107,12 +88,12 @@ function render(data) {
     byId('pix-expiration').textContent = Number.isFinite(expiration.getTime())
       ? `Vencimento do PIX: ${expiration.toLocaleString('pt-BR')}` : 'Vencimento do PIX: consulte a situação do pagamento.';
   }
-  const result = paymentsMode === 'BRAVOPAY' && data.result?.fictitious ? null : data.result;
+  const result = data.result?.fictitious ? null : data.result;
   byId('result').hidden = !result;
   byId('result-data').replaceChildren();
   if (result) {
     byId('result-message').textContent = result.message;
-    const entries = result.processes || [{ protocol: result.protocol, status: paymentsMode === 'SANDBOX' ? 'Abertura fictícia registrada' : 'Abertura registrada' }];
+    const entries = result.processes || [{ protocol: result.protocol, status: 'Atendimento registrado' }];
     for (const entry of entries) {
       const item = document.createElement('li');
       item.textContent = `${entry.protocol}: ${entry.status}`;
@@ -126,8 +107,8 @@ function updateService() {
   const opening = form.elements.serviceType.value === 'ABERTURA';
   byId('description-group').hidden = !opening;
   byId('description').required = opening;
-  byId('submit').textContent = paymentsMode === 'BRAVOPAY'
-    ? (opening ? 'Criar abertura' : 'Criar consulta') : (opening ? 'Criar abertura simulada' : 'Criar consulta simulada');
+  byId('submit').textContent = opening ? 'Iniciar atendimento' : 'Solicitar consulta';
+  byId('service-fee').textContent = byId(opening ? 'abertura-price' : 'consulta-price').textContent;
 }
 form.addEventListener('change', updateService);
 
@@ -186,6 +167,7 @@ async function init() {
     } catch { sessionStorage.removeItem('sandbox-pending'); }
     byId('consulta-price').textContent = money(catalog.prices.CONSULTA);
     byId('abertura-price').textContent = money(catalog.prices.ABERTURA);
+    updateService();
     form.hidden = false;
     const saved = sessionStorage.getItem('sandbox-request');
     if (saved && /^[a-f\d-]{36}$/.test(saved)) render(await api(`/api/services/${saved}`));
