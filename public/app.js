@@ -127,6 +127,14 @@ form.addEventListener('submit', async event => {
     if (!pending || pending.digest !== digest) pending = { digest, key: crypto.randomUUID() };
     sessionStorage.setItem('sandbox-pending', JSON.stringify(pending));
     const data = await api('/api/services', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': pending.key }, body: serialized });
+    // Analytics cannot change the outcome of a successful service request.
+    try {
+      const marker = 'meta-lead-' + pending.key;
+      if (!sessionStorage.getItem(marker) && typeof window.fbq === 'function') {
+        sessionStorage.setItem(marker, '1');
+        window.fbq('track', 'Lead');
+      }
+    } catch { /* Tracking failures must not affect payments or the interface. */ }
     render(data); pending = null; sessionStorage.removeItem('sandbox-pending'); byId('request').focus();
   } catch (err) { error(err.message); }
   finally { byId('submit').disabled = false; }

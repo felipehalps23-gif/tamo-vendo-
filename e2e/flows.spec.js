@@ -4,6 +4,10 @@ import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
+test.beforeEach(async ({ page }) => {
+  await page.route('https://connect.facebook.net/**', route => route.abort());
+  await page.route('https://www.facebook.com/**', route => route.abort());
+});
 async function accessibility(page) {
   await page.route('**/__test_axe.js', route => route.fulfill({
     contentType: 'text/javascript', body: readFileSync(require.resolve('axe-core/axe.min.js'))

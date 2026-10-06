@@ -3,6 +3,10 @@ import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
+test.beforeEach(async ({ page }) => {
+  await page.route('https://connect.facebook.net/**', route => route.abort());
+  await page.route('https://www.facebook.com/**', route => route.abort());
+});
 const service = {
   id: '11111111-2222-4333-8444-555555555555', serviceType: 'CONSULTA', provider: 'BRAVOPAY', amount: 3000,
   currency: 'BRL', status: 'PENDING', paymentId: 'tx_ui_example', result: null,

@@ -30,7 +30,7 @@ export function createApp(config) {
   const services = new Services(db, paymentProvider(config, db), config);
   const limits = new Map();
   const server = createServer(async (req, res) => {
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'sha256-P+HzOwixCmDaYY0h9VI1aoG6qM8w0sxG2Qcm5EZkGok=' https://connect.facebook.net; style-src 'self'; connect-src 'self' https://www.facebook.com; img-src 'self' https://www.facebook.com; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

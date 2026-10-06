@@ -113,3 +113,10 @@ Quality gates do vibe-coding-toolkit, origem registrada em scripts/quality-insta
 três arquivos .cjs preservados. MAX_LINES=350, includeTests=true. Arquivos upstream têm exceções próprias do toolkit.
 no-direct-console nos fontes (scripts CLI liberados). Frontend bloqueia imports de Node/backend;
 no-direct-data-access do toolkit não se aplica a HTML estático sem camada ORM na apresentação.
+# Meta Pixel
+
+Pixel `3467821023378401`: `PageView` no carregamento e `Lead` após sucesso do POST `/api/services`, sem parâmetros de dados pessoais. O Lead é registrado uma vez por chave de operação nesta sessão; falhas de analytics não afetam a solicitação. Polling, atualização manual e restauração da solicitação não disparam Lead.
+
+A API atual não distingue criação nova de reaproveitamento idempotente. Se a primeira resposta for perdida, o primeiro sucesso observado no retry pode registrar um Lead para a operação já aceita; não é possível distinguir esses casos sem mudar o contrato. A deduplicação local não garante deduplicação entre sessões, nem entrega quando o Pixel está bloqueado.
+
+No Gerenciador de Eventos da Meta, mantenha eventos automáticos e correspondência avançada automática desativados. O código enviado pela aplicação não contém dados pessoais nos eventos; configurações remotas do Pixel não foram auditadas. Os testes interceptam os domínios Meta e não enviam eventos reais.
