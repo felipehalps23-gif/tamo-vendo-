@@ -107,7 +107,7 @@ function updateService() {
   const opening = form.elements.serviceType.value === 'ABERTURA';
   byId('description-group').hidden = !opening;
   byId('description').required = opening;
-  byId('submit').textContent = opening ? 'Continuar atendimento' : 'Continuar para consulta';
+  byId('submit').textContent = opening ? 'Continuar atendimento' : 'Consultar atendimento';
   byId('service-fee').textContent = byId(opening ? 'abertura-price' : 'consulta-price').textContent;
 }
 form.addEventListener('change', updateService);

@@ -28,10 +28,10 @@ async function setup(page, options = {}) {
     await route.fulfill({ json: { ...service, status: calls.status, pix: options.noPix ? null : service.pix } });
   });
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Continuar para consulta', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Consultar atendimento', exact: true })).toBeVisible();
   await page.locator('#name').fill('Pessoa UI');
   await page.locator('#cpf').fill('52998224725');
-  await page.getByRole('button', { name: 'Continuar para consulta', exact: true }).click();
+  await page.getByRole('button', { name: 'Consultar atendimento', exact: true }).click();
   await expect(page.locator('#request-status')).toHaveText('Aguardando pagamento');
   return calls;
 }
