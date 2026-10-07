@@ -37,7 +37,7 @@ test('consulta, abertura, acessibilidade e responsividade', async ({ page, reque
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
   await page.goto('/?status=paid');
-  await expect(page.getByRole('button', { name: 'Solicitar consulta' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continuar para consulta' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Consulta e entrada para aposentadoria');
   await expect(page.getByRole('link', { name: 'inssnet@gmai.com' })).toHaveAttribute('href', 'mailto:inssnet@gmai.com');
   await expect(page.locator('footer')).toContainText('Responsável pelo serviço: MeuINSS.net');
@@ -49,10 +49,10 @@ test('consulta, abertura, acessibilidade e responsividade', async ({ page, reque
   await page.screenshot({ path: testInfo.outputPath('initial.png'), fullPage: true });
   await page.locator('#name').fill('Pessoa de Teste');
   await page.locator('#cpf').fill('11111111111');
-  await page.getByRole('button', { name: 'Solicitar consulta' }).click();
+  await page.getByRole('button', { name: 'Continuar para consulta' }).click();
   await expect(page.getByRole('alert')).toContainText('CPF válido');
   await page.locator('#cpf').fill('529.982.247-25');
-  await page.getByRole('button', { name: 'Solicitar consulta' }).click();
+  await page.getByRole('button', { name: 'Continuar para consulta' }).click();
   await expect(page.locator('#request-status')).toHaveText('Aguardando pagamento');
   await page.evaluate(() => {
     localStorage.setItem('status', 'PAID');
@@ -70,7 +70,7 @@ test('consulta, abertura, acessibilidade e responsividade', async ({ page, reque
   await page.locator('#cpf').fill('529.982.247-25');
   await expect(page.locator('#service-fee')).toContainText('50,00');
   await page.locator('#description').fill('Teste de abertura de processo fictício.');
-  await page.getByRole('button', { name: 'Iniciar atendimento' }).click();
+  await page.getByRole('button', { name: 'Continuar atendimento' }).click();
   await expect(page.locator('#request-amount')).toContainText('50,00');
   await confirm(page, request, 5000);
   await expect(page.locator('#result')).toBeHidden();
@@ -111,7 +111,7 @@ test('resposta perdida e recarga reutilizam a mesma operação sem guardar CPF',
       await route.abort('failed');
     } else await route.continue();
   });
-  await page.getByRole('button', { name: 'Solicitar consulta' }).click();
+  await page.getByRole('button', { name: 'Continuar para consulta' }).click();
   await expect(page.getByRole('alert')).toBeVisible();
   const storage = await page.evaluate(() => JSON.stringify({ ...sessionStorage }));
   expect(storage).not.toContain('52998224725');
@@ -122,7 +122,7 @@ test('resposta perdida e recarga reutilizam a mesma operação sem guardar CPF',
   await expect(page.locator('#service-form')).toBeVisible();
   await page.locator('#name').fill('Pessoa de Teste');
   await page.locator('#cpf').fill('529.982.247-25');
-  await page.getByRole('button', { name: 'Solicitar consulta' }).click();
+  await page.getByRole('button', { name: 'Continuar para consulta' }).click();
   await expect(page.locator('#request-id')).toHaveText(first.id);
   await expect(page.locator('#payment-id')).toHaveText(first.paymentId);
   expect(keys).toHaveLength(2);

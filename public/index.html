@@ -34,9 +34,9 @@ fbq('track', 'PageView');
   <a class="skip" href="#main">Ir para o conteúdo</a>
   <header><span class="brand">MeuINSS.net</span><span>Atendimento para aposentadoria</span></header>
   <main id="main">
-    <div class="intro"><h1>Consulta e entrada para aposentadoria</h1><p>Consulte informações e solicite atendimento para iniciar a organização do seu pedido de aposentadoria.</p><p class="explanation">Este sistema facilita a consulta de informações e o envio dos dados necessários para iniciar seu atendimento relacionado à aposentadoria.</p></div>
+    <div class="intro"><p class="independence"><strong>Serviço independente, sem vínculo com o INSS ou gov.br.</strong></p><h1>Consulta e entrada para aposentadoria</h1><p>Atendimento privado para solicitar uma consulta ou organizar seu pedido de aposentadoria.</p><p class="explanation">Você recebe um protocolo para acompanhar sua solicitação nesta página. O serviço não garante aprovação de benefício, prioridade ou aceleração no INSS.</p></div>
     <div class="workspace">
-      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li>Escolha o serviço desejado.</li><li>Informe seus dados.</li><li>Confira o valor do serviço antes de continuar.</li><li>Realize o pagamento.</li><li>Acompanhe sua solicitação pelo protocolo gerado.</li></ol><p>O valor cobrado é uma taxa de serviço pelo atendimento de MeuINSS.net.</p></aside>
+      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li>Escolha o serviço e confira o valor.</li><li>Informe seus dados.</li><li>Continue para o pagamento.</li><li>Após a confirmação, acompanhe a solicitação pelo protocolo nesta página.</li></ol><p>O valor cobrado é pelo atendimento privado de MeuINSS.net.</p></aside>
       <section class="panel" aria-labelledby="form-title">
         <h2 id="form-title">Nova solicitação</h2>
         <p id="loading" role="status">Carregando serviços…</p>
@@ -45,12 +45,13 @@ fbq('track', 'PageView');
             <label class="option"><input type="radio" name="serviceType" value="CONSULTA" checked><span><strong>Consulta</strong><small id="consulta-note">Solicite uma consulta para verificar as informações relacionadas ao seu atendimento de aposentadoria.</small></span><span id="consulta-price"></span></label>
             <label class="option"><input type="radio" name="serviceType" value="ABERTURA"><span><strong>Iniciar atendimento</strong><small id="abertura-note">Envie seus dados para iniciar o atendimento e a preparação da sua solicitação de aposentadoria.</small></span><span id="abertura-price"></span></label>
           </fieldset>
+          <div class="review" role="note"><p>Valor do serviço selecionado: <strong id="service-fee" aria-live="polite"></strong>.</p><p>Ao continuar, você recebe um protocolo e segue para o pagamento. Após a confirmação, acompanhe a situação nesta página. Mantenha esta aba aberta para preservar o acesso.</p></div>
           <label id="name-label" for="name">Nome completo</label><input id="name" name="name" required minlength="3" maxlength="120" autocomplete="name">
+          <p class="hint" id="cpf-help">Pedimos o CPF para identificar sua solicitação de atendimento. Informe com ou sem pontuação.</p>
           <label id="cpf-label" for="cpf">CPF</label><input id="cpf" name="cpf" required inputmode="numeric" maxlength="14" aria-describedby="cpf-help" autocomplete="off">
-          <p class="hint" id="cpf-help">Informe seu CPF com ou sem pontuação.</p>
           <div id="description-group" hidden><label id="description-label" for="description">Conte o que você precisa</label><textarea id="description" name="description" minlength="10" maxlength="2000" rows="4"></textarea></div>
-          <div class="review" role="note"><p><strong>Confira seus dados antes de continuar.</strong></p><p>Taxa de serviço: <strong id="service-fee"></strong>. Esse valor corresponde ao serviço escolhido.</p><p>Após a confirmação do pagamento, sua solicitação ficará disponível para acompanhamento.</p></div>
-          <button type="submit" id="submit">Solicitar consulta</button>
+          <p class="hint">Confira seus dados. O próximo passo é o pagamento do serviço escolhido.</p>
+          <button type="submit" id="submit">Continuar para consulta</button>
         </form>
         <p id="error" class="error" role="alert" hidden></p>
         <section id="request" hidden aria-labelledby="request-title" tabindex="-1">

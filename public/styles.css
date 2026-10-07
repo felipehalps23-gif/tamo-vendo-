@@ -54,12 +54,14 @@ footer { color: #496175; font-size: .875rem; margin-top: 28px; }
   aside { padding: 0; }
   .panel { padding: 22px 16px; }
   .intro { margin-bottom: 24px; }
+  #submit { width: 100%; }
   dl { grid-template-columns: 1fr; gap: 4px; } dd { margin-bottom: 12px; }
 }
 
 small { font-size: 1rem; }
 .review { border-left: 4px solid #166675; background: #eef8fa; padding: 4px 16px; }
 .intro .explanation { font-size: 1rem; }
+.intro .independence { font-size: 1rem; color: #19354a; margin-top: 0; }
 a { color: #125664; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .disclaimer { font-size: .9rem; }
 summary { padding: 12px 0; }
