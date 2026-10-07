@@ -21,6 +21,7 @@ test('Pixel: PageView, Lead somente no sucesso, deduplicação e isolamento', as
   await expect.poll(() => page.evaluate(() => window.metaEvents)).toEqual([
     ['init', '3467821023378401'], ['track', 'PageView']
   ]);
+  await page.getByRole('radio', { name: /Consultar atendimento/ }).check();
   await page.locator('#name').fill('Pessoa Pixel');
   await page.locator('#cpf').fill('52998224725');
   await page.locator('#submit').click();
@@ -42,6 +43,7 @@ test('Pixel: PageView, Lead somente no sucesso, deduplicação e isolamento', as
   ]);
   // Reuse the frontend operation marker without changing backend idempotency.
   await page.locator('#new-request').click();
+  await page.getByRole('radio', { name: /Consultar atendimento/ }).check();
   await page.locator('#name').fill('Pessoa Pixel');
   await page.locator('#cpf').fill('52998224725');
   await page.evaluate(async () => {
@@ -51,6 +53,7 @@ test('Pixel: PageView, Lead somente no sucesso, deduplicação e isolamento', as
     sessionStorage.setItem('sandbox-pending', JSON.stringify({ digest, key }));
   });
   await page.reload();
+  await page.getByRole('radio', { name: /Consultar atendimento/ }).check();
   await page.locator('#name').fill('Pessoa Pixel');
   await page.locator('#cpf').fill('52998224725');
   await page.locator('#submit').click();

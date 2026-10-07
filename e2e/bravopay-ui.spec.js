@@ -28,10 +28,11 @@ async function setup(page, options = {}) {
     await route.fulfill({ json: { ...service, status: calls.status, pix: options.noPix ? null : service.pix } });
   });
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Consultar atendimento', exact: true })).toBeVisible();
+  await page.getByRole('radio', { name: /Consultar atendimento/ }).check();
+  await expect(page.getByRole('button', { name: 'Continuar consulta', exact: true })).toBeVisible();
   await page.locator('#name').fill('Pessoa UI');
   await page.locator('#cpf').fill('52998224725');
-  await page.getByRole('button', { name: 'Consultar atendimento', exact: true }).click();
+  await page.getByRole('button', { name: 'Continuar consulta', exact: true }).click();
   await expect(page.locator('#request-status')).toHaveText('Aguardando pagamento');
   return calls;
 }
@@ -45,6 +46,33 @@ async function accessibility(page) {
   expect(violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 }
+
+test('envio mostra loading e bloqueia solicitações duplicadas', async ({ page }) => {
+  let release;
+  let posts = 0;
+  const waiting = new Promise(resolve => { release = resolve; });
+  await page.route('**/api/catalog', route => route.fulfill({ json: { paymentsMode: 'BRAVOPAY', prices: { CONSULTA: 3000, ABERTURA: 5000 } } }));
+  await page.route('**/api/services', async route => {
+    posts++;
+    await waiting;
+    await route.fulfill({ status: 201, json: service });
+  });
+  await page.goto('/');
+  await expect(page.locator('#name')).toBeHidden();
+  await expect(page.locator('#submit')).toBeHidden();
+  await page.locator('.option').first().click();
+  await page.locator('#name').fill('Pessoa UI');
+  await page.locator('#cpf').fill('52998224725');
+  await page.locator('#submit').click();
+  await expect(page.locator('#submit')).toBeDisabled();
+  await expect(page.locator('#submit-status')).toContainText('Enviando sua solicitação');
+  await expect(page.getByRole('radio', { name: /Iniciar atendimento/ })).toBeDisabled();
+  await page.locator('#service-form').evaluate(el => el.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+  await expect.poll(() => posts).toBe(1);
+  release();
+  await expect(page.locator('#request')).toBeVisible();
+  expect(posts).toBe(1);
+});
 
 test('BRAVOPAY PENDING mostra PIX, textos corretos, acessibilidade e clipboard', async ({ page }, info) => {
   await page.addInitScript(() => {

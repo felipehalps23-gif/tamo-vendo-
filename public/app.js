@@ -64,8 +64,17 @@ async function api(path, options = {}) {
   return data;
 }
 
-function error(message) { byId('error').hidden = false; byId('error').textContent = message; }
-function clearError() { byId('error').hidden = true; }
+function error(message) {
+  const cpfInvalid = !form.hidden && !byId('personal-details').hidden && message === 'Informe um CPF válido.';
+  const target = byId(cpfInvalid ? 'cpf-error' : 'error');
+  target.hidden = false; target.textContent = message;
+  if (cpfInvalid) { byId('cpf').setAttribute('aria-invalid', 'true'); byId('cpf').focus(); }
+}
+function clearError() {
+  byId('error').hidden = true; byId('cpf-error').hidden = true;
+  byId('cpf').removeAttribute('aria-invalid');
+}
+byId('cpf').addEventListener('input', clearError);
 
 function render(data) {
   currentId = data.id;
@@ -104,17 +113,27 @@ function render(data) {
 }
 
 function updateService() {
+  byId('personal-details').hidden = !form.elements.serviceType.value;
   const opening = form.elements.serviceType.value === 'ABERTURA';
   byId('description-group').hidden = !opening;
   byId('description').required = opening;
-  byId('submit').textContent = opening ? 'Continuar atendimento' : 'Consultar atendimento';
+  byId('submit').textContent = opening ? 'Continuar atendimento' : 'Continuar consulta';
   byId('service-fee').textContent = byId(opening ? 'abertura-price' : 'consulta-price').textContent;
 }
-form.addEventListener('change', updateService);
+form.addEventListener('change', event => {
+  if (event.target.name === 'serviceType') { clearError(); updateService(); }
+});
 
 form.addEventListener('submit', async event => {
-  event.preventDefault(); clearError();
+  event.preventDefault();
+  if (byId('submit').disabled || !form.elements.serviceType.value) return;
+  clearError();
   byId('submit').disabled = true;
+  byId('service-options').disabled = true;
+  form.setAttribute('aria-busy', 'true');
+  byId('submit').textContent = 'Aguarde…';
+  byId('submit-status').textContent = 'Enviando sua solicitação. Aguarde nesta página.';
+  byId('submit-status').hidden = false;
   const body = {
     serviceType: form.elements.serviceType.value,
     name: byId('name').value, cpf: byId('cpf').value,
@@ -137,7 +156,10 @@ form.addEventListener('submit', async event => {
     } catch { /* Tracking failures must not affect payments or the interface. */ }
     render(data); pending = null; sessionStorage.removeItem('sandbox-pending'); byId('request').focus();
   } catch (err) { error(err.message); }
-  finally { byId('submit').disabled = false; }
+  finally {
+    byId('submit').disabled = false; byId('service-options').disabled = false;
+    form.removeAttribute('aria-busy'); byId('submit-status').hidden = true; updateService();
+  }
 });
 
 byId('refresh').addEventListener('click', () => refreshStatus());
@@ -157,7 +179,8 @@ byId('new-request').addEventListener('click', () => {
   sessionStorage.removeItem('sandbox-request'); currentId = null; pending = null;
   sessionStorage.removeItem('sandbox-pending');
   byId('request').hidden = true; form.hidden = false; clearError();
-  byId('name').focus();
+  for (const option of form.elements.serviceType) option.checked = false;
+  updateService(); form.elements.serviceType[0].focus();
 });
 
 async function init() {

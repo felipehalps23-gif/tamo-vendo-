@@ -34,25 +34,28 @@ fbq('track', 'PageView');
   <a class="skip" href="#main">Ir para o conteúdo</a>
   <header><span class="brand">Aposentei.net</span><span>Atendimento para aposentadoria</span></header>
   <main id="main">
-    <div class="intro"><h1>Seu atendimento para aposentadoria, de forma simples.</h1><p>Conte com atendimento especializado para entender sua situação, organizar as informações necessárias e acompanhar cada etapa.</p></div>
+    <div class="intro"><h1>Seu atendimento de forma simples.</h1><p>Escolha o que você precisa e siga o passo a passo.</p></div>
     <div class="workspace">
-      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li><strong>Escolha o atendimento</strong><p>Veja qual serviço atende sua necessidade.</p></li><li><strong>Informe seus dados</strong><p>Preencha somente as informações necessárias para iniciar o atendimento.</p></li><li><strong>Acompanhe sua solicitação</strong><p>Após a confirmação do pagamento, acompanhe a situação nesta página.</p></li></ol><section class="support" aria-labelledby="support-title"><h2 id="support-title">Mais acompanhamento, menos complicação</h2><p>Nosso atendimento especializado ajuda a identificar pendências, organizar informações e orientar as providências adequadas para evitar atrasos desnecessários.</p><p>Não há garantia de aprovação, prazo ou prioridade no INSS.</p></section></aside>
+      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li>Escolha o atendimento</li><li>Informe seus dados</li><li>Faça o pagamento</li><li>Acompanhe seu atendimento</li></ol><section class="support" aria-labelledby="support-title"><h2 id="support-title">Atendimento especializado</h2><p>Nossa equipe auxilia no atendimento, organização das informações e acompanhamento da solicitação.</p></section></aside>
       <section class="panel" aria-labelledby="form-title">
         <h2 id="form-title">Escolha seu atendimento</h2>
         <p id="loading" role="status">Carregando serviços…</p>
         <form id="service-form" hidden>
-          <fieldset><legend>Escolha o serviço</legend>
-            <label class="option"><input type="radio" name="serviceType" value="CONSULTA" checked><span><strong>Consulta</strong><small id="consulta-note">Consulta de informações sobre seu atendimento de aposentadoria, com protocolo para acompanhamento.</small></span><span id="consulta-price"></span></label>
-            <label class="option"><input type="radio" name="serviceType" value="ABERTURA"><span><strong>Iniciar atendimento</strong><small id="abertura-note">Organização das informações para iniciar sua solicitação de aposentadoria, com protocolo para acompanhamento.</small></span><span id="abertura-price"></span></label>
+          <fieldset id="service-options"><legend>Escolha o serviço</legend>
+            <label class="option"><input type="radio" name="serviceType" value="CONSULTA" required aria-controls="personal-details"><span><strong>Consultar atendimento</strong><small id="consulta-note">Consulte informações e acompanhe seu atendimento.</small></span><span id="consulta-price"></span></label>
+            <label class="option"><input type="radio" name="serviceType" value="ABERTURA" required aria-controls="personal-details"><span><strong>Iniciar atendimento</strong><small id="abertura-note">Comece um novo atendimento com nossa equipe.</small></span><span id="abertura-price"></span></label>
           </fieldset>
-          <div class="review" role="note"><p>Valor do atendimento: <strong id="service-fee" aria-live="polite"></strong>.</p><p>Ao continuar, você recebe um protocolo e segue para o pagamento. Depois da confirmação, acompanhe a situação aqui. Mantenha esta aba aberta.</p></div>
+          <div id="personal-details" hidden>
+          <div class="review" role="note"><p>Valor do atendimento: <strong id="service-fee" aria-live="polite"></strong>.</p><p>Ao continuar, você recebe um protocolo e segue para o pagamento. Mantenha esta aba aberta para acompanhar.</p></div>
           <label id="name-label" for="name">Nome completo</label><input id="name" name="name" required minlength="3" maxlength="120" autocomplete="name">
-          <p class="hint" id="cpf-help">Precisamos do CPF para identificar corretamente sua solicitação durante o atendimento.</p>
-          <label id="cpf-label" for="cpf">CPF</label><input id="cpf" name="cpf" required inputmode="numeric" maxlength="14" aria-describedby="cpf-help" autocomplete="off">
+          <label id="cpf-label" for="cpf">CPF</label><input id="cpf" name="cpf" required inputmode="numeric" maxlength="14" aria-describedby="cpf-help cpf-error" autocomplete="off">
+          <p class="hint" id="cpf-help">Seus dados são usados somente para realizar e acompanhar o atendimento.</p>
+          <p id="cpf-error" class="error" role="alert" hidden></p>
           <div id="description-group" hidden><label id="description-label" for="description">Conte o que você precisa</label><textarea id="description" name="description" minlength="10" maxlength="2000" rows="4"></textarea></div>
           <p class="hint">Confira seus dados. O próximo passo é o pagamento do serviço escolhido.</p>
-          <button type="submit" id="submit">Consultar atendimento</button>
-          <p class="independence">Aposentei.net é um serviço privado e independente. Não integra o INSS ou gov.br.</p>
+          <button type="submit" id="submit">Continuar consulta</button>
+          <p id="submit-status" class="hint" role="status" hidden></p>
+          </div>
         </form>
         <p id="error" class="error" role="alert" hidden></p>
         <section id="request" hidden aria-labelledby="request-title" tabindex="-1">
@@ -74,7 +77,8 @@ fbq('track', 'PageView');
         </section>
       </section>
     </div>
+    <p class="independence">Importante: Aposentei.net é um serviço particular de atendimento e acompanhamento. Não somos o INSS nem o gov.br.</p>
   </main>
-  <footer><p><strong>Responsável pelo serviço: Aposentei.net</strong><br>Contato: <a href="mailto:inssnet@gmai.com">inssnet@gmai.com</a></p><p>Serviço privado e independente, sem vínculo com o INSS ou o Governo Federal. O valor cobrado corresponde ao atendimento privado.</p><p class="disclaimer">Este serviço não substitui os canais oficiais do INSS ou do gov.br.</p></footer>
+  <footer><p><strong>Precisa de ajuda?</strong><br><a href="mailto:inssnet@gmai.com">inssnet@gmai.com</a></p><p><strong>Responsável pelo serviço: Aposentei.net</strong></p><p>Serviço privado e independente, sem vínculo com o INSS ou o Governo Federal. O valor cobrado corresponde ao atendimento privado. Não há garantia de aprovação, prazo ou prioridade no INSS.</p><p class="disclaimer">Este serviço não substitui os canais oficiais do INSS ou do gov.br.</p></footer>
 </body>
 </html>

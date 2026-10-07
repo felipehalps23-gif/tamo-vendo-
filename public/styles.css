@@ -12,7 +12,9 @@ h2 { font-size: 1.4rem; margin: 0 0 18px; }
 h3 { margin-bottom: 8px; }
 p { max-width: 70ch; }
 .intro p { font-size: 1.1rem; color: #62566a; }
-.workspace { display: grid; grid-template-columns: 1fr 1.8fr; gap: 36px; align-items: start; }
+.workspace { display: grid; grid-template-columns: 1fr; gap: 32px; max-width: 760px; margin: auto; }
+main > .intro, main > .independence { max-width: 760px; margin-left: auto; margin-right: auto; }
+.panel { order: -1; }
 aside { padding: 18px 0; }
 aside ol { list-style: none; padding: 0; counter-reset: step; }
 aside li { position: relative; padding: 0 0 24px 54px; counter-increment: step; }
@@ -24,8 +26,10 @@ aside p { color: #62566a; font-size: 1rem; }
 fieldset { border: 0; margin: 0 0 24px; padding: 0; }
 legend { font-weight: 600; margin-bottom: 12px; }
 label { display: block; font-weight: 600; margin-top: 16px; margin-bottom: 6px; }
-.option { display: grid; grid-template-columns: 24px 1fr; align-items: start; gap: 12px; padding: 16px; border: 1px solid #aa97b4; border-radius: 4px; cursor: pointer; font-weight: 400; }
-.option:has(input:checked) { border: 2px solid #663c78; padding: 15px; background: #f3edf7; }
+.option { display: grid; grid-template-columns: 24px 1fr; align-items: start; gap: 12px; padding: 22px; border: 1px solid #aa97b4; border-radius: 8px; cursor: pointer; font-weight: 400; }
+.option:has(input:checked) { border: 2px solid #663c78; padding: 21px; background: #f3edf7; }
+.option:has(:focus-visible) { outline: 3px solid #954a00; outline-offset: 4px; }
+input[aria-invalid=true] { border: 2px solid #96272c; }
 .option > :last-child { grid-column: 2; white-space: nowrap; font-weight: 700; }
 small { display: block; color: #62566a; }
 input:not([type=radio]), textarea { width: 100%; min-height: 60px; padding: 14px; font: inherit; border: 1px solid #8c7797; border-radius: 4px; color: inherit; background: white; }
