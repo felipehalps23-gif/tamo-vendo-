@@ -38,6 +38,18 @@ test('consulta, abertura, acessibilidade e responsividade', async ({ page, reque
   page.on('pageerror', err => errors.push(err.message));
   await page.goto('/?status=paid');
   await expect(page.locator('#personal-details')).toBeHidden();
+  await expect(page.locator('.panel .independence')).toBeVisible();
+  await expect(page.locator('main .independence')).toHaveCount(1);
+  expect(await page.locator('.panel').evaluate(el => !!(el.compareDocumentPosition(document.querySelector('aside')) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  await expect(page.getByRole('heading', { name: 'Quem realiza o atendimento?' })).toBeVisible();
+  await expect(page.locator('#team-details')).not.toHaveAttribute('open', '');
+  await page.locator('#team-details summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#team-details')).toHaveAttribute('open', '');
+  await expect(page.locator('#team-details')).toContainText('organizar documentos');
+  await accessibility(page);
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#team-details')).not.toHaveAttribute('open', '');
   await accessibility(page);
   await page.getByRole('radio', { name: /Consultar atendimento/ }).check();
   await expect(page.getByRole('button', { name: 'Continuar consulta' })).toBeVisible();

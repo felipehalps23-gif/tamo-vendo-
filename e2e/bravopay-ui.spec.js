@@ -60,6 +60,8 @@ test('envio mostra loading e bloqueia solicitações duplicadas', async ({ page 
   await page.goto('/');
   await expect(page.locator('#name')).toBeHidden();
   await expect(page.locator('#submit')).toBeHidden();
+  await page.locator('#service-form').evaluate(el => el.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+  expect(posts).toBe(0);
   await page.locator('.option').first().click();
   await page.locator('#name').fill('Pessoa UI');
   await page.locator('#cpf').fill('52998224725');

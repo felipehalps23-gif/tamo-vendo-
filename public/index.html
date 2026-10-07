@@ -36,7 +36,6 @@ fbq('track', 'PageView');
   <main id="main">
     <div class="intro"><h1>Seu atendimento de forma simples.</h1><p>Escolha o que você precisa e siga o passo a passo.</p></div>
     <div class="workspace">
-      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li>Escolha o atendimento</li><li>Informe seus dados</li><li>Faça o pagamento</li><li>Acompanhe seu atendimento</li></ol><section class="support" aria-labelledby="support-title"><h2 id="support-title">Atendimento especializado</h2><p>Nossa equipe auxilia no atendimento, organização das informações e acompanhamento da solicitação.</p></section></aside>
       <section class="panel" aria-labelledby="form-title">
         <h2 id="form-title">Escolha seu atendimento</h2>
         <p id="loading" role="status">Carregando serviços…</p>
@@ -57,6 +56,7 @@ fbq('track', 'PageView');
           <p id="submit-status" class="hint" role="status" hidden></p>
           </div>
         </form>
+        <p class="independence">Importante: Aposentei.net é um serviço particular de atendimento e acompanhamento. Não somos o INSS nem o gov.br.</p>
         <p id="error" class="error" role="alert" hidden></p>
         <section id="request" hidden aria-labelledby="request-title" tabindex="-1">
           <h2 id="request-title">Acompanhe sua solicitação</h2>
@@ -76,8 +76,18 @@ fbq('track', 'PageView');
           <p id="session-note" class="hint">Mantenha esta aba aberta para acompanhar sua solicitação. Se fechar a aba, o acesso por esta página será perdido.</p>
         </section>
       </section>
+      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li>Escolha o atendimento</li><li>Informe seus dados</li><li>Faça o pagamento</li><li>Acompanhe seu atendimento</li></ol><section class="support" aria-labelledby="support-title">
+        <h2 id="support-title">Quem realiza o atendimento?</h2>
+        <p>O atendimento é feito por uma equipe particular, com profissionais especializados e apoio jurídico.</p>
+        <p>Você não precisa entender toda a burocracia sozinho. Nossa equipe ajuda a organizar as informações e orienta você em cada etapa do atendimento.</p>
+        <details id="team-details"><summary>Saiba como nossa equipe ajuda</summary>
+          <p>Nossa equipe ajuda a organizar documentos, conferir informações, preparar solicitações e acompanhar cada etapa do atendimento.</p>
+          <p>Quando necessário, também trabalhamos com documentos, autorizações e procedimentos exigidos para que a solicitação possa ser encaminhada corretamente.</p>
+          <p>Todo o atendimento segue a documentação e as autorizações aplicáveis ao serviço.</p>
+          <p>A equipe não faz parte do INSS nem do Governo Federal, mas auxilia o cliente durante todo o processo para que as informações e os documentos sejam organizados corretamente.</p>
+        </details>
+      </section></aside>
     </div>
-    <p class="independence">Importante: Aposentei.net é um serviço particular de atendimento e acompanhamento. Não somos o INSS nem o gov.br.</p>
   </main>
   <footer><p><strong>Precisa de ajuda?</strong><br><a href="mailto:inssnet@gmai.com">inssnet@gmai.com</a></p><p><strong>Responsável pelo serviço: Aposentei.net</strong></p><p>Serviço privado e independente, sem vínculo com o INSS ou o Governo Federal. O valor cobrado corresponde ao atendimento privado. Não há garantia de aprovação, prazo ou prioridade no INSS.</p><p class="disclaimer">Este serviço não substitui os canais oficiais do INSS ou do gov.br.</p></footer>
 </body>
