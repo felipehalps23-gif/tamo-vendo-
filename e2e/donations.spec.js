@@ -23,6 +23,7 @@ test('doação pede só valor, aguarda backend e confirma com mensagem correta',
   expect(app.calls[0].body).toEqual({ serviceType: 'DOACAO', amount: 2500 });
   await expect(page.locator('#status')).toHaveText('Aguardando confirmação do pagamento.');
   await expect(page.locator('#pix-code')).toHaveValue(operation.pix.copyPaste);
+  await expect(page.locator('#pix .beneficiary')).toHaveText('ORIN PAY YECNOLOGIA');
   await expect(page.locator('#qr-note')).toContainText('Copia e Cola');
   await page.locator('#new').click();
   await expect(page.locator('#error')).toContainText('Aguarde a confirmação');
@@ -50,4 +51,45 @@ test('valor livre, acessibilidade e responsividade', async ({ page }, testInfo) 
   await page.screenshot({ path: testInfo.outputPath('donation.png'), fullPage: true });
   await page.locator('#generate').click();
   expect(app.calls[0].body.amount).toBe(1235);
+});
+
+test('galeria carrega fotos reais, aviso fica no rodape e valores continuam selecionaveis', async ({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', err => errors.push(err.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  const app = await setup(page);
+  await expect(page.locator('main .transparency')).toHaveCount(0);
+  await expect(page.locator('footer .transparency')).toContainText('Se o recebedor for diferente, não conclua o pagamento.');
+  await expect(page.locator('footer .beneficiary')).toHaveText('ORIN PAY YECNOLOGIA');
+  await expect(page.getByRole('heading', { name: 'Eles precisam de cuidado e acolhimento 🐾' })).toBeVisible();
+  const gallery = page.locator('.gallery');
+  const images = gallery.locator('img');
+  await expect(images).toHaveCount(4);
+  expect(await gallery.evaluate(node => !!(node.compareDocumentPosition(document.querySelector('.donation')) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  for (const image of await images.all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate(node => node.complete && node.naturalWidth > 0)).toBe(true);
+    expect(await image.getAttribute('alt')).toBeTruthy();
+    expect(Number(await image.getAttribute('width'))).toBeGreaterThan(0);
+    expect(Number(await image.getAttribute('height'))).toBeGreaterThan(0);
+    const response = await page.request.get(await image.getAttribute('src'));
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toBe('image/webp');
+  }
+  const columns = () => page.locator('.gallery-grid').evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+  expect(await columns()).toBe(testInfo.project.name === 'mobile' ? 2 : 4);
+  await page.getByRole('link', { name: 'Ir para as opções de doação' }).click();
+  await expect(page.locator('#donation-title')).toBeFocused();
+  for (const amount of ['10', '25', '50', '100', '200']) {
+    const radio = page.getByRole('radio', { name: `R$ ${amount}`, exact: true });
+    await radio.check(); await expect(radio).toBeChecked();
+  }
+  expect(app.calls).toHaveLength(0);
+  await page.screenshot({ path: testInfo.outputPath('gallery.png'), fullPage: true });
+  await page.setViewportSize({ width: 768, height: 1024 });
+  expect(await columns()).toBe(2);
+  await page.setViewportSize({ width: 320, height: 800 });
+  expect(await columns()).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
 });
