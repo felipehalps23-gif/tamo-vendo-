@@ -23,6 +23,10 @@ const staticFiles = new Map([
   ['/atendimento', ['atendimento.html', 'text/html; charset=utf-8']],
   ['/donation.js', ['donation.js', 'text/javascript; charset=utf-8']],
   ['/donation.css', ['donation.css', 'text/css; charset=utf-8']],
+  ['/images/cao-1.webp', ['images/cao-1.webp', 'image/webp']],
+  ['/images/cao-2.webp', ['images/cao-2.webp', 'image/webp']],
+  ['/images/cao-3.webp', ['images/cao-3.webp', 'image/webp']],
+  ['/images/cao-4.webp', ['images/cao-4.webp', 'image/webp']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']]
 ]);
