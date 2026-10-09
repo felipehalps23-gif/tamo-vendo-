@@ -42,7 +42,8 @@ test('Fluxos HTTP, persistência, pagamentos autenticados e deduplicação', asy
       assert.deepEqual(catalog.data.prices, { CONSULTA: 3000, ABERTURA: 5000 });
       const page = await fetch(base);
       const html = await page.text();
-      assert.match(html, /lang="pt-BR"/); assert.match(html, /Aposentei.net/);
+      assert.match(html, /lang="pt-BR"/); assert.match(html, /ONG Anjos de Patas/);
+      assert.match(await (await fetch(`${base}/atendimento`)).text(), /Aposentei.net/);
       assert.ok(page.headers.get('content-security-policy').includes("frame-ancestors 'none'"));
       const frontend = await (await fetch(`${base}/app.js`)).text();
       assert.ok(!frontend.includes('BRAVOPAY_'));

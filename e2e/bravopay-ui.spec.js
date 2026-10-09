@@ -27,7 +27,7 @@ async function setup(page, options = {}) {
     expect(route.request().method()).toBe('GET'); calls.gets++;
     await route.fulfill({ json: { ...service, status: calls.status, pix: options.noPix ? null : service.pix } });
   });
-  await page.goto('/');
+  await page.goto('/atendimento');
   await page.getByRole('radio', { name: /Consultar atendimento/ }).check();
   await expect(page.getByRole('button', { name: 'Continuar consulta', exact: true })).toBeVisible();
   await page.locator('#name').fill('Pessoa UI');
@@ -57,7 +57,7 @@ test('envio mostra loading e bloqueia solicitações duplicadas', async ({ page 
     await waiting;
     await route.fulfill({ status: 201, json: service });
   });
-  await page.goto('/');
+  await page.goto('/atendimento');
   await expect(page.locator('#name')).toBeHidden();
   await expect(page.locator('#submit')).toBeHidden();
   await page.locator('#service-form').evaluate(el => el.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));

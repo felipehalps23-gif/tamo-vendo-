@@ -4,8 +4,9 @@ import { pathToFileURL } from 'node:url';
 import { loadConfig } from './config.js';
 import { openDatabase } from './database.js';
 import { paymentProvider } from './paymentProvider.js';
-import { Services, PRICES } from './services.js';
+import { Services, PRICES, DONATIONS } from './services.js';
 import { HttpError, ownerFromRequest } from './security.js';
+import QRCode from 'qrcode';
 
 async function readBody(req) {
   const chunks = []; let size = 0;
@@ -19,6 +20,9 @@ async function readBody(req) {
 
 const staticFiles = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
+  ['/atendimento', ['atendimento.html', 'text/html; charset=utf-8']],
+  ['/donation.js', ['donation.js', 'text/javascript; charset=utf-8']],
+  ['/donation.css', ['donation.css', 'text/css; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']]
 ]);
@@ -30,7 +34,7 @@ export function createApp(config) {
   const services = new Services(db, paymentProvider(config, db), config);
   const limits = new Map();
   const server = createServer(async (req, res) => {
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'sha256-P+HzOwixCmDaYY0h9VI1aoG6qM8w0sxG2Qcm5EZkGok=' https://connect.facebook.net; style-src 'self'; connect-src 'self' https://www.facebook.com; img-src 'self' https://www.facebook.com; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'sha256-P+HzOwixCmDaYY0h9VI1aoG6qM8w0sxG2Qcm5EZkGok=' https://connect.facebook.net; style-src 'self'; connect-src 'self' https://www.facebook.com; img-src 'self' blob: https://www.facebook.com; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');
@@ -52,7 +56,8 @@ export function createApp(config) {
         res.writeHead(200, { 'Content-Type': type });
         res.end(readFileSync(new URL(`../public/${file}`, import.meta.url))); return;
       }
-      if (req.method === 'GET' && path === '/api/catalog') return json(200, { environment: 'HOMOLOGATION', paymentsMode: config.paymentsMode, prices: PRICES });
+      if (req.method === 'GET' && path === '/api/catalog') return json(200, { environment: 'HOMOLOGATION', paymentsMode: config.paymentsMode, prices: PRICES,
+        donations: DONATIONS, beneficiary: config.donationBeneficiary || null, donationsEnabled: config.paymentsMode === 'SANDBOX' || !!config.donationBeneficiary });
       if (req.method === 'GET' && path === '/api/health') return json(200, { status: 'ok', environment: 'HOMOLOGATION' });
       if (req.method === 'POST' && (path === '/api/webhooks/payment' || (path === '/api/webhooks/sandbox' && config.paymentsMode === 'SANDBOX'))) {
         return json(200, services.webhook(await readBody(req), req.headers));
@@ -67,6 +72,13 @@ export function createApp(config) {
       }
       const match = path.match(/^\/api\/services\/([a-f\d-]{36})$/i);
       if (req.method === 'GET' && match) return json(200, await services.refresh(ownerFromRequest(req), match[1]));
+      const qr = path.match(/^\/api\/services\/([a-f\d-]{36})\/qr$/i);
+      if (req.method === 'GET' && qr) {
+        const operation = services.read(ownerFromRequest(req), qr[1]);
+        if (operation.status !== 'PENDING' || !operation.pix?.copyPaste) throw new HttpError(404, 'Pix indisponível.');
+        const png = await QRCode.toBuffer(operation.pix.copyPaste, { width: 320, margin: 4 });
+        res.writeHead(200, { 'Content-Type': 'image/png' }); res.end(png); return;
+      }
       throw new HttpError(404, 'Rota não encontrada.');
     } catch (error) {
       if (!(error instanceof HttpError)) process.stderr.write(`${JSON.stringify({ event: 'INTERNAL_ERROR', time: new Date().toISOString() })}\n`);

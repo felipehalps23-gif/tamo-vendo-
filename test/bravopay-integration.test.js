@@ -14,13 +14,14 @@ async function fixture(t) {
   const ledger = new Map(); const calls = [];
   let failNext;
   const config = { paymentsMode: 'BRAVOPAY', database: ':memory:', origin: 'http://127.0.0.1',
-    encryptionKey: randomBytes(32).toString('hex'),
+    encryptionKey: randomBytes(32).toString('hex'), donationBeneficiary: 'Recebedor Teste',
     bravoPay: { baseUrl: 'https://bravopay.club/api/v1', secretKey: 'test-key', webhookSecret: 'test-webhook' },
     providerDependencies: { fetch: async (url, options) => {
       calls.push({ method: options.method || 'GET', url });
       assert.equal(url.startsWith('https://bravopay.club/api/v1/transactions'), true);
       if (options.method === 'POST') {
         const input = JSON.parse(options.body);
+        if (input.amount_cents === 2500) assert.equal(Object.hasOwn(input, 'customer'), false);
         const transaction = { id: `tx_${randomUUID()}`, object: 'transaction', status: 'PENDING', method: 'PIX',
           amount_cents: input.amount_cents, currency: 'BRL', external_reference: input.external_reference,
           created_at: new Date().toISOString(), pix: { copy_paste: 'not-a-real-pix-code', expires_at: new Date(Date.now() + 3600000).toISOString() } };
@@ -60,8 +61,35 @@ async function fixture(t) {
   const input = { serviceType: 'CONSULTA', name: 'Pessoa Teste', cpf: '52998224725' };
   const create = (key = randomUUID(), body = input) => api('/api/services', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key }, body: JSON.stringify(body) });
   const webhook = signed => api('/api/webhooks/payment', { method: 'POST', headers: signed.headers, body: signed.body });
-  return { ledger, calls, config, db, api, create, webhook, signature, input, fail: type => { failNext = type; } };
+  return { ledger, calls, config, db, api, create, webhook, signature, input, token, fail: type => { failNext = type; } };
 }
+
+test('Doações reutilizam BravoPay sem PII, limites, sessão, QR e webhook idempotente', async t => {
+  const app = await fixture(t);
+  const body = { serviceType: 'DOACAO', amount: 2500 };
+  for (const amount of [0, 499, 100001, 2500.5, '2500', null]) assert.equal((await app.create(randomUUID(), { ...body, amount })).status, 400);
+  assert.equal((await app.create(randomUUID(), { ...body, status: 'PAID' })).status, 400);
+  const key = randomUUID();
+  const created = (await app.create(key, body)).data;
+  assert.equal(created.serviceType, 'DOACAO'); assert.equal(created.amount, 2500); assert.equal(created.status, 'PENDING');
+  assert.equal((await app.create(key, body)).data.id, created.id);
+  assert.equal(app.calls.filter(call => call.method === 'POST').length, 1);
+  assert.equal((await app.create(key, { ...body, amount: 5000 })).status, 409);
+  const qr = await fetch(`${app.config.origin}/api/services/${created.id}/qr`, { headers: { Authorization: `Bearer ${'a'.repeat(64)}` } });
+  assert.equal(qr.status, 404);
+  const image = await fetch(`${app.config.origin}/api/services/${created.id}/qr`, { headers: { Authorization: `Bearer ${app.token}` } });
+  assert.equal(image.status, 200); assert.equal(image.headers.get('content-type'), 'image/png');
+  assert.equal(Buffer.from(await image.arrayBuffer()).subarray(1, 4).toString(), 'PNG');
+  app.config.donationBeneficiary = null;
+  assert.equal((await app.create(randomUUID(), body)).status, 503);
+  app.config.donationBeneficiary = 'Recebedor Teste';
+  const signed = app.signature(app.ledger.get(created.id));
+  assert.equal((await app.webhook({ ...signed, headers: {} })).status, 401);
+  assert.equal((await app.webhook(signed)).status, 200);
+  assert.equal((await app.webhook(signed)).data.duplicate, true);
+  assert.equal(app.db.prepare('SELECT type,status FROM services WHERE id=?').get(created.id).status, 'PAID');
+  assert.equal(app.db.prepare('SELECT count(*) AS n FROM results').get().n, 0);
+});
 
 test('BravoPay HTTP: criação persistida, preços backend, consulta e confirmação autenticada', async t => {
   const app = await fixture(t);

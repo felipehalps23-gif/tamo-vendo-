@@ -5,8 +5,8 @@ export function openDatabase(path) {
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
     CREATE TABLE IF NOT EXISTS services (
       id TEXT PRIMARY KEY, owner TEXT NOT NULL, idem TEXT NOT NULL, fingerprint TEXT NOT NULL,
-      type TEXT NOT NULL CHECK(type IN ('CONSULTA','ABERTURA')),
-      amount INTEGER NOT NULL CHECK(amount IN (3000,5000)),
+      type TEXT NOT NULL CHECK(type IN ('CONSULTA','ABERTURA','DOACAO')),
+      amount INTEGER NOT NULL CHECK((type IN ('CONSULTA','ABERTURA') AND amount IN (3000,5000)) OR (type='DOACAO' AND amount BETWEEN 500 AND 100000)),
       sensitive TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('PENDING','PAID','FAILED','REFUNDED')),
       created TEXT NOT NULL, UNIQUE(owner,idem)
     );
@@ -24,6 +24,24 @@ export function openDatabase(path) {
       seq INTEGER PRIMARY KEY AUTOINCREMENT, service_id TEXT REFERENCES services(id),
       action TEXT NOT NULL, created TEXT NOT NULL
     );`);
+  // SQLite não permite ampliar CHECK por ALTER. Copia exatamente os dados legados.
+  if (!db.prepare("SELECT sql FROM sqlite_master WHERE name='services'").get().sql.includes("'DOACAO'")) {
+    db.exec('PRAGMA foreign_keys=OFF');
+    try {
+      transaction(db, () => {
+        db.exec(`CREATE TABLE services_v3 (
+          id TEXT PRIMARY KEY, owner TEXT NOT NULL, idem TEXT NOT NULL, fingerprint TEXT NOT NULL,
+          type TEXT NOT NULL CHECK(type IN ('CONSULTA','ABERTURA','DOACAO')),
+          amount INTEGER NOT NULL CHECK((type IN ('CONSULTA','ABERTURA') AND amount IN (3000,5000)) OR (type='DOACAO' AND amount BETWEEN 500 AND 100000)),
+          sensitive TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('PENDING','PAID','FAILED','REFUNDED')),
+          created TEXT NOT NULL, UNIQUE(owner,idem));
+          INSERT INTO services_v3 SELECT * FROM services;
+          DROP TABLE services;
+          ALTER TABLE services_v3 RENAME TO services;`);
+        if (db.prepare('PRAGMA foreign_key_check').all().length) throw new Error('Migration foreign key violation');
+      });
+    } finally { db.exec('PRAGMA foreign_keys=ON'); }
+  }
   const columns = new Set(db.prepare('PRAGMA table_info(payments)').all().map(column => column.name));
   transaction(db, () => {
     const additions = {
@@ -37,7 +55,7 @@ export function openDatabase(path) {
     db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS payments_provider_id ON payments(provider,provider_payment_id);
       UPDATE payments SET provider_payment_id=id, amount_cents=(SELECT amount FROM services WHERE services.id=payments.service_id),
       created_at=(SELECT created FROM services WHERE services.id=payments.service_id) WHERE provider='SANDBOX' AND provider_payment_id IS NULL;
-      PRAGMA user_version=2;`);
+      PRAGMA user_version=3;`);
   });
   return db;
 }

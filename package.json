@@ -7,6 +7,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
+    "build": "node scripts/build.js",
     "start": "node src/server.js",
     "test": "node --test",
     "test:e2e": "playwright test",
@@ -22,5 +23,8 @@
     "axe-core": "^4.13.0",
     "eslint": "^9.39.0",
     "globals": "^16.4.0"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
   }
 }

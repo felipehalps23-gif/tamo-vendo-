@@ -3,26 +3,30 @@ import { audit, transaction } from './database.js';
 import { HttpError, normalizeCpf, encrypt, decrypt, hash } from './security.js';
 
 export const PRICES = Object.freeze({ CONSULTA: 3000, ABERTURA: 5000 });
+export const DONATIONS = Object.freeze({ suggested: [1000, 2500, 5000, 10000, 20000], min: 500, max: 100000 });
 
 export class Services {
   constructor(db, paymentProvider, config) { this.db = db; this.paymentProvider = paymentProvider; this.config = config; }
   create(owner, idem, body) {
     if (!/^[\w-]{16,100}$/.test(idem || '')) throw new HttpError(400, 'Chave de idempotência inválida.');
-    const allowed = ['serviceType', 'cpf', 'name', 'description'];
+    const donation = body?.serviceType === 'DOACAO';
+    const allowed = donation ? ['serviceType', 'amount'] : ['serviceType', 'cpf', 'name', 'description'];
     if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).some(key => !allowed.includes(key))) {
       throw new HttpError(400, 'Campos não permitidos. O valor é definido pelo servidor.');
     }
-    if (typeof body.serviceType !== 'string' || !Object.hasOwn(PRICES, body.serviceType)) throw new HttpError(400, 'Serviço inválido.');
-    const amount = PRICES[body.serviceType];
-    const cpf = normalizeCpf(body.cpf);
+    if (!donation && (typeof body.serviceType !== 'string' || !Object.hasOwn(PRICES, body.serviceType))) throw new HttpError(400, 'Serviço inválido.');
+    const amount = donation ? body.amount : PRICES[body.serviceType];
+    if (donation && (!Number.isSafeInteger(amount) || amount < DONATIONS.min || amount > DONATIONS.max)) throw new HttpError(400, 'Informe uma doação entre R$ 5,00 e R$ 1.000,00.');
+    if (donation && this.config.paymentsMode === 'BRAVOPAY' && !this.config.donationBeneficiary) throw new HttpError(503, 'Arrecadação indisponível: beneficiário ainda não verificado.');
+    const cpf = donation ? '' : normalizeCpf(body.cpf);
     const name = typeof body.name === 'string' ? body.name.trim() : '';
     const description = typeof body.description === 'string' ? body.description.trim() : '';
-    if (name.length < 3 || name.length > 120) throw new HttpError(400, 'Informe um nome entre 3 e 120 caracteres.');
+    if (!donation && (name.length < 3 || name.length > 120)) throw new HttpError(400, 'Informe um nome entre 3 e 120 caracteres.');
     if (description.length > 2000 || (body.serviceType === 'ABERTURA' && description.length < 10)) {
       throw new HttpError(400, 'Descreva a abertura com 10 a 2000 caracteres.');
     }
     const sensitive = { cpf, name, description };
-    const fingerprint = createHmac('sha256', this.config.encryptionKey).update(JSON.stringify({ serviceType: body.serviceType, ...sensitive })).digest('hex');
+    const fingerprint = createHmac('sha256', this.config.encryptionKey).update(JSON.stringify({ serviceType: body.serviceType, ...(donation ? { amount } : {}), ...sensitive })).digest('hex');
     if (this.config.paymentsMode === 'BRAVOPAY') return this.createBravoOperation({ owner, idem, fingerprint, type: body.serviceType, amount, sensitive });
     return transaction(this.db, () => {
       const existing = this.db.prepare('SELECT * FROM services WHERE owner=? AND idem=?').get(owner, idem);
@@ -82,7 +86,7 @@ export class Services {
       this.db.prepare('UPDATE payments SET status=? WHERE id=?').run(event.status, payment.id);
       this.db.prepare('UPDATE services SET status=? WHERE id=?').run(event.status, service.id);
       audit(this.db, service.id, `SANDBOX_PAYMENT_${event.status}`);
-      if (event.status === 'PAID') {
+      if (event.status === 'PAID' && service.type !== 'DOACAO') {
         const result = service.type === 'CONSULTA'
           ? { fictitious: true, message: 'Consulta fictícia concluída. Nenhum dado institucional foi consultado.', processes: [{ protocol: `DEMO-${service.id.slice(0, 8)}`, status: 'Exemplo em análise' }] }
           : { fictitious: true, message: 'Abertura fictícia registrada. Nenhum processo institucional foi aberto.', protocol: `DEMO-${service.id.slice(0, 8)}` };
@@ -116,7 +120,7 @@ export class Services {
     try {
       // Nenhuma transação SQLite fica aberta durante I/O. Retentativas apenas reconciliam.
       payment = await this.paymentProvider.createPayment({ serviceId: operation.id, amount, currency: 'BRL',
-        idempotencyKey: operation.payment.idempotency_key, customer: { name: sensitive.name, cpf: sensitive.cpf }, reconcileOnly: operation.reconcileOnly });
+        idempotencyKey: operation.payment.idempotency_key, ...(type === 'DOACAO' ? {} : { customer: { name: sensitive.name, cpf: sensitive.cpf } }), reconcileOnly: operation.reconcileOnly });
     } catch (error) {
       if (['PAYMENT_REJECTED', 'PAYMENT_PROVIDER_AUTH_ERROR'].includes(error.code)) transaction(this.db, () => {
         this.db.prepare("UPDATE payments SET operation_state='REJECTED',status='FAILED',payment_state='FAILED' WHERE service_id=? AND provider_payment_id IS NULL").run(operation.id);
