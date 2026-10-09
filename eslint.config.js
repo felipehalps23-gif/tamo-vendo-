@@ -3,7 +3,7 @@ import globals from 'globals';
 import quality from './eslint-rules/index.cjs';
 
 export default [
-  { ignores: ['node_modules/**'] },
+  { ignores: ['node_modules/**', 'dist/**'] },
   js.configs.recommended,
   {
     files: ['**/*.js', '**/*.mjs', '**/*.cjs'],

@@ -17,7 +17,7 @@ test('Pixel: PageView, Lead somente no sucesso, deduplicação e isolamento', as
     : { status: 201, json: service }));
   await page.route(`**/api/services/${service.id}`, route => route.fulfill({ json: service }));
   await page.clock.install();
-  await page.goto('/');
+  await page.goto('/atendimento');
   await expect.poll(() => page.evaluate(() => window.metaEvents)).toEqual([
     ['init', '3467821023378401'], ['track', 'PageView']
   ]);

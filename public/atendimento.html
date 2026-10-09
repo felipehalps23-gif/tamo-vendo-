@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Aposentei.net — Atendimento para aposentadoria</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '3467821023378401');
+fbq('track', 'PageView');
+</script>
+<noscript>
+<img
+  height="1"
+  width="1"
+  style="display:none"
+  src="https://www.facebook.com/tr?id=3467821023378401&ev=PageView&noscript=1"
+/>
+</noscript>
+<!-- End Meta Pixel Code -->
+</head>
+<body>
+  <a class="skip" href="#main">Ir para o conteúdo</a>
+  <header><span class="brand">Aposentei.net</span><span>Atendimento para aposentadoria</span></header>
+  <main id="main">
+    <div class="intro"><h1>Seu atendimento de forma simples.</h1><p>Escolha o que você precisa e siga o passo a passo.</p></div>
+    <div class="workspace">
+      <section class="panel" aria-labelledby="form-title">
+        <h2 id="form-title">Escolha seu atendimento</h2>
+        <p id="loading" role="status">Carregando serviços…</p>
+        <form id="service-form" hidden>
+          <fieldset id="service-options"><legend>Escolha o serviço</legend>
+            <label class="option"><input type="radio" name="serviceType" value="CONSULTA" required aria-controls="personal-details"><span><strong>Consultar atendimento</strong><small id="consulta-note">Consulte informações e acompanhe seu atendimento.</small></span><span id="consulta-price"></span></label>
+            <label class="option"><input type="radio" name="serviceType" value="ABERTURA" required aria-controls="personal-details"><span><strong>Iniciar atendimento</strong><small id="abertura-note">Comece um novo atendimento com nossa equipe.</small></span><span id="abertura-price"></span></label>
+          </fieldset>
+          <div id="personal-details" hidden>
+          <div class="review" role="note"><p>Valor do atendimento: <strong id="service-fee" aria-live="polite"></strong>.</p><p>Ao continuar, você recebe um protocolo e segue para o pagamento. Mantenha esta aba aberta para acompanhar.</p></div>
+          <label id="name-label" for="name">Nome completo</label><input id="name" name="name" required minlength="3" maxlength="120" autocomplete="name">
+          <label id="cpf-label" for="cpf">CPF</label><input id="cpf" name="cpf" required inputmode="numeric" maxlength="14" aria-describedby="cpf-help cpf-error" autocomplete="off">
+          <p class="hint" id="cpf-help">Seus dados são usados somente para realizar e acompanhar o atendimento.</p>
+          <p id="cpf-error" class="error" role="alert" hidden></p>
+          <div id="description-group" hidden><label id="description-label" for="description">Conte o que você precisa</label><textarea id="description" name="description" minlength="10" maxlength="2000" rows="4"></textarea></div>
+          <p class="hint">Confira seus dados. O próximo passo é o pagamento do serviço escolhido.</p>
+          <button type="submit" id="submit">Continuar consulta</button>
+          <p id="submit-status" class="hint" role="status" hidden></p>
+          </div>
+        </form>
+        <p class="independence">Importante: Aposentei.net é um serviço particular de atendimento e acompanhamento. Não somos o INSS nem o gov.br.</p>
+        <p id="error" class="error" role="alert" hidden></p>
+        <section id="request" hidden aria-labelledby="request-title" tabindex="-1">
+          <h2 id="request-title">Acompanhe sua solicitação</h2>
+          <dl><dt id="protocol-label">Protocolo da solicitação</dt><dd id="request-id"></dd><dt>Serviço</dt><dd id="request-type"></dd><dt id="amount-label">Taxa de serviço</dt><dd id="request-amount"></dd><dt>Situação</dt><dd><span id="request-status" role="status" aria-live="polite"></span></dd></dl>
+          <p id="pending-note">Após a confirmação do pagamento, sua solicitação ficará disponível para acompanhamento.</p>
+          <section id="pix-payment" hidden aria-labelledby="pix-title">
+            <h3 id="pix-title">Pagamento via PIX</h3><p>Use o aplicativo do seu banco para realizar o pagamento.</p>
+            <p>Taxa de serviço: <strong id="pix-amount"></strong></p>
+            <label for="pix-code">Código PIX</label><textarea id="pix-code" readonly rows="4" spellcheck="false"></textarea>
+            <button type="button" id="copy-pix">Copiar código PIX</button><p id="copy-status" role="status" aria-live="polite"></p>
+            <p id="pix-expiration"></p>
+          </section>
+          <details><summary id="payment-label">Identificador do pagamento</summary><p id="payment-id" class="identifier"></p></details>
+          <div id="result" hidden><h3 id="result-title">Informações da solicitação</h3><p id="result-message"></p><ul id="result-data"></ul></div>
+          <div class="actions"><button type="button" id="refresh">Atualizar situação</button><button type="button" id="new-request" class="secondary">Nova solicitação</button></div>
+          <p id="polling-note" class="hint" role="status" hidden></p>
+          <p id="session-note" class="hint">Mantenha esta aba aberta para acompanhar sua solicitação. Se fechar a aba, o acesso por esta página será perdido.</p>
+        </section>
+      </section>
+      <aside aria-labelledby="steps-title"><h2 id="steps-title">Como funciona</h2><ol><li>Escolha o atendimento</li><li>Informe seus dados</li><li>Faça o pagamento</li><li>Acompanhe seu atendimento</li></ol><section class="support" aria-labelledby="support-title">
+        <h2 id="support-title">Quem realiza o atendimento?</h2>
+        <p>O atendimento é feito por uma equipe particular, com profissionais especializados e apoio jurídico.</p>
+        <p>Você não precisa entender toda a burocracia sozinho. Nossa equipe ajuda a organizar as informações e orienta você em cada etapa do atendimento.</p>
+        <details id="team-details"><summary>Saiba como nossa equipe ajuda</summary>
+          <p>Nossa equipe ajuda a organizar documentos, conferir informações, preparar solicitações e acompanhar cada etapa do atendimento.</p>
+          <p>Quando necessário, também trabalhamos com documentos, autorizações e procedimentos exigidos para que a solicitação possa ser encaminhada corretamente.</p>
+          <p>Todo o atendimento segue a documentação e as autorizações aplicáveis ao serviço.</p>
+          <p>A equipe não faz parte do INSS nem do Governo Federal, mas auxilia o cliente durante todo o processo para que as informações e os documentos sejam organizados corretamente.</p>
+        </details>
+      </section></aside>
+    </div>
+  </main>
+  <footer><p><strong>Precisa de ajuda?</strong><br><a href="mailto:inssnet@gmai.com">inssnet@gmai.com</a></p><p><strong>Responsável pelo serviço: Aposentei.net</strong></p><p>Serviço privado e independente, sem vínculo com o INSS ou o Governo Federal. O valor cobrado corresponde ao atendimento privado. Não há garantia de aprovação, prazo ou prioridade no INSS.</p><p class="disclaimer">Este serviço não substitui os canais oficiais do INSS ou do gov.br.</p></footer>
+</body>
+</html>

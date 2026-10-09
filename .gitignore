@@ -5,3 +5,4 @@ coverage/
 *.sqlite*
 test-results/
 playwright-report/
+dist/

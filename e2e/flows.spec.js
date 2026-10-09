@@ -36,7 +36,7 @@ async function confirm(page, request, amount) {
 test('consulta, abertura, acessibilidade e responsividade', async ({ page, request }, testInfo) => {
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
-  await page.goto('/?status=paid');
+  await page.goto('/atendimento?status=paid');
   await expect(page.locator('#personal-details')).toBeHidden();
   await expect(page.locator('.panel .independence')).toBeVisible();
   await expect(page.locator('main .independence')).toHaveCount(1);
@@ -97,7 +97,7 @@ test('consulta, abertura, acessibilidade e responsividade', async ({ page, reque
 });
 
 test('navegação por teclado mostra foco e permite criar solicitação', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/atendimento');
   await expect(page.locator('#service-form')).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Ir para o conteúdo' })).toBeFocused();
@@ -118,7 +118,7 @@ test('navegação por teclado mostra foco e permite criar solicitação', async 
 });
 
 test('resposta perdida e recarga reutilizam a mesma operação sem guardar CPF', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/atendimento');
   await expect(page.locator('#service-form')).toBeVisible();
   await page.getByRole('radio', { name: /Consultar atendimento/ }).check();
   await page.locator('#name').fill('Pessoa de Teste');

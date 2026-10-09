@@ -120,3 +120,51 @@ Pixel `3467821023378401`: `PageView` no carregamento e `Lead` após sucesso do P
 A API atual não distingue criação nova de reaproveitamento idempotente. Se a primeira resposta for perdida, o primeiro sucesso observado no retry pode registrar um Lead para a operação já aceita; não é possível distinguir esses casos sem mudar o contrato. A deduplicação local não garante deduplicação entre sessões, nem entrega quando o Pixel está bloqueado.
 
 No Gerenciador de Eventos da Meta, mantenha eventos automáticos e correspondência avançada automática desativados. O código enviado pela aplicação não contém dados pessoais nos eventos; configurações remotas do Pixel não foram auditadas. Os testes interceptam os domínios Meta e não enviam eventos reais.
+
+## ONG Anjos de Patas — versão de revisão
+
+A página `/` arrecada doações; `/atendimento` preserva a interface antiga e seu histórico.
+O POST `/api/services` aceita `{ "serviceType": "DOACAO", "amount": 2500 }`, em centavos inteiros,
+entre 500 e 100000 (R$ 5 a R$ 1.000). Os valores sugeridos são R$ 10, 25, 50, 100 e 200.
+Doações usam o mesmo provider, sessão, idempotência, conciliação, rate limit e webhook `/api/webhooks/payment`.
+Não criam resultados de consultas ou aberturas. Dados de pagador não são coletados: os campos `customer`
+são opcionais no contrato oficial consultado em https://bravopay.club/docs em 08/10/2026.
+
+O responsável pelo recebimento informado pelo usuário é **ORIN PAY YECNOLOGIA**, com a mesma conta
+BravoPay existente. `DONATION_BENEFICIARY_NAME` permite corrigir o nome público, sem alterar credenciais.
+Esse nome informado não constitui verificação bancária automática: confira no aplicativo bancário e
+no cadastro da conta antes de aprovar a publicação. O contrato não retorna identidade legal verificável
+na resposta de criação. Não foi realizada cobrança para verificar o recebedor. Uma configuração sem
+beneficiário bloqueia novas doações BravoPay. A interface orienta a não pagar em caso de divergência.
+
+O QR é gerado localmente a partir do Copia e Cola retornado pelo provider. A rota autenticada
+`GET /api/services/:id/qr` devolve PNG só para pagamentos pendentes da sessão; não cria cobranças.
+Falha do QR permite usar Copia e Cola. A mensagem de agradecimento depende de PAID retornado pelo backend.
+No SANDBOX, a confirmação é identificada explicitamente como simulada.
+
+SQLite v3 amplia os CHECKs da tabela services para DOACAO. Como SQLite não altera CHECK por ALTER,
+a migração copia a tabela em transação, preserva os campos e verifica as chaves estrangeiras antes
+do commit. Pagamentos, resultados e auditoria permanecem vinculados aos mesmos IDs. Faça backup do banco
+antes de aplicar a versão aprovada. Nenhum banco ou ambiente de produção foi modificado nesta tarefa.
+
+Validação local: `npm run check`, `npm run quality:verify`, `npm run test:e2e`, `npm run build`.
+O build verifica a sintaxe e prepara código e arquivos estáticos em `dist/`, sem banco, `.env` ou secrets.
+Não há transpilation nem necessidade de bundler; o runtime continua Node >=22.13.
+Os testes BravoPay usam fetch simulado e bancos temporários; os E2E de doação interceptam a API.
+Não execute `sandbox:event` contra um ambiente real. Publicação exige aprovação separada.
+
+### Registro de qualidade desta alteração
+
+Stack: npm, JavaScript ESM, Node HTTP nativo e SQLite; não foi introduzido Express nem uma segunda integração.
+Gates existentes preservados: quality/max-lines (350 linhas, incluindo testes), no-direct-console e fronteira
+frontend/backend por no-restricted-imports. O lint ignora apenas o novo artefato gerado dist.
+Não há typecheck: o projeto é JavaScript sem TypeScript. Linha de base: lint sem erros/warnings e 53 testes.
+Linhas físicas antes/depois: services.js 180→184; database.js 53→71; server.js 104→116;
+index.html 94→61; novos donation.js 131 e donation.css 43. Nenhum JS mantido acima de 350 linhas.
+Não houve refatoração em lotes nem supressão de diagnósticos; provider e segurança foram reutilizados.
+A única dependência de runtime adicionada é qrcode para codificar o payload existente como PNG local.
+
+Resultado final: `npm run check` aprovado (lint: 0 erros/0 warnings; 54 testes); `npm run quality:verify`
+aprovado; `npm run build` aprovado; `npm run test:e2e` aprovado (30 testes em desktop/mobile).
+Axe não detectou violações nos estados avaliados; capturas desktop e mobile foram revisadas visualmente.
+A alteração local preexistente em src/paymentProvider.js não faz parte deste commit.

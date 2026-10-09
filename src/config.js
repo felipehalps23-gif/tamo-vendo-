@@ -15,6 +15,7 @@ export function loadConfig(env = process.env) {
   return {
     host: env.HOST || '127.0.0.1', port: Number(env.PORT || 3000),
     origin: origin.origin, database, encryptionKey: env.DATA_ENCRYPTION_KEY,
+    donationBeneficiary: env.DONATION_BENEFICIARY_NAME?.trim() || 'ORIN PAY YECNOLOGIA',
     webhookSecret: env.SANDBOX_WEBHOOK_SECRET, paymentsMode: env.PAYMENTS_MODE,
     bravoPay: {
       baseUrl: env.BRAVOPAY_BASE_URL, publicKey: env.BRAVOPAY_PUBLIC_KEY,
