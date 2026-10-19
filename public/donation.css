@@ -32,7 +32,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .brand-ngo { display: block; font-size: .95rem; font-weight: 700; letter-spacing: .05em; margin-bottom: 5px; }
 .brand-name { display: block; font: 400 2.2rem/1 'Anjos Display', 'Arial Rounded MT Bold', sans-serif; }
 .brand small { display: block; font-size: .82rem; color: var(--muted); margin-top: 8px; }
-nav { display: flex; gap: 28px; align-items: center; font-size: .9rem; white-space: nowrap; }
+nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 28px; align-items: center; font-size: .9rem; white-space: nowrap; }
 nav a { text-decoration: none; padding-block: 12px; }
 nav a:hover { text-decoration: underline; text-underline-offset: 7px; }
 nav .active { font-weight: 700; text-decoration: underline; text-decoration-color: #287b63; text-decoration-thickness: 3px; text-underline-offset: 9px; }
@@ -77,6 +77,8 @@ p { max-width: 65ch; }
 .hero-visual figcaption { position: absolute; right: 8px; bottom: 0; font-size: .63rem; color: #475b4d; max-width: 100%; text-align: center; }
 .section-heading { text-align: center; margin-bottom: 28px; }
 .section-heading p { margin: 0 auto; color: var(--muted); }
+.about { width: 100%; max-width: 900px; justify-self: center; padding: clamp(24px, 4vw, 40px); border-radius: 24px; background: var(--soft-green); }
+.about p { margin: 0; color: var(--muted); }
 .impact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .impact article { padding: 26px 28px; border-radius: 22px; background: #edf3e7; }
 .impact article:nth-child(2) { background: #ffebde; }
@@ -145,7 +147,7 @@ footer > p:first-child { color: var(--forest); font-weight: 700; }
   .cause-copy > p:not(.pix-reassurance) { font-size: .98rem; }
 }
 @media (max-width: 950px) {
-  nav a:not(.header-donate) { display: none; }
+  nav a:not(.header-donate):not(.about-link) { display: none; }
   .cause { grid-template-columns: 1fr 1fr; }
   h1 { font-size: 3.25rem; }
   .hero-visual { margin-left: -20px; min-height: 530px; }
@@ -163,7 +165,8 @@ footer > p:first-child { color: var(--forest); font-weight: 700; }
 }
 @media (max-width: 720px) {
   header, main, footer { width: calc(100% - 40px); }
-  header { padding-block: 16px; gap: 14px; }
+  header { padding-block: 16px; gap: 14px; flex-wrap: wrap; }
+  nav { flex-basis: 100%; justify-content: space-between; }
   .brand-mark { width: 54px; height: 54px; }
   .brand-name { font-size: 1.45rem; }
   .brand-ngo { font-size: .7rem; }
