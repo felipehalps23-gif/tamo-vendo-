@@ -129,3 +129,19 @@ async function init() {
 window.addEventListener('pagehide', () => { clearTimeout(timer); clearQr(); });
 window.addEventListener('pageshow', event => { if (event.persisted && current) refresh(); });
 init();
+
+// Presentation assets use the existing blob policy; no additional server routes are needed.
+async function loadVisualAssets() {
+  const assets = el('visual-assets');
+  if (!assets) return;
+  const decode = value => Uint8Array.from(atob(value), character => character.charCodeAt(0));
+  const image = el('hero-art');
+  const imageUrl = URL.createObjectURL(new Blob([decode(assets.dataset.image)], { type: 'image/webp' }));
+  image.addEventListener('load', () => URL.revokeObjectURL(imageUrl), { once: true });
+  image.src = imageUrl;
+  try {
+    const font = await new FontFace('Anjos Display', decode(assets.dataset.font)).load();
+    document.fonts.add(font);
+  } catch { /* The local rounded font stack remains available. */ }
+}
+loadVisualAssets();
