@@ -10,17 +10,38 @@
 </head>
 <body>
   <a class="skip" href="#main">Ir para o conteúdo</a>
-  <header><a class="brand" href="/">ONG Anjos de Patas</a><span>Cuidado que começa com você</span></header>
+  <header>
+    <a class="brand" href="/" aria-label="ONG Anjos de Patas — início"><span class="brand-mark" aria-hidden="true">🐾</span><span>Anjos de Patas<small>ONG · Cuidado e acolhimento</small></span></a>
+    <nav aria-label="Navegação principal"><a href="#gallery-title">Nossa inspiração</a><a class="header-donate" href="#donation-title">Quero ajudar <span aria-hidden="true">♡</span></a></nav>
+  </header>
   <main id="main">
     <section class="cause" aria-labelledby="cause-title">
-      <div class="paw" aria-hidden="true">🐾</div>
-      <h1 id="cause-title">Uma chance de cuidado.<br>Uma pata de cada vez.</h1>
-      <p>Ajude a ONG Anjos de Patas a cuidar de animais. Sua doação é destinada a apoiar alimentação, cuidados veterinários e acolhimento.</p>
-      <a class="donate-link" href="#donation-title">Ir para as opções de doação</a>
+      <div class="cause-copy">
+        <p class="welcome"><span aria-hidden="true">♡</span> Cuidado que começa com você</p>
+        <h1 id="cause-title">Uma chance de cuidado,<br>uma pata de cada vez.</h1>
+        <p>Cada gesto de carinho pode transformar a vida de um animal. Sua contribuição é uma forma de apoiar o cuidado, a proteção e novas oportunidades.</p>
+        <a class="donate-link" href="#donation-title"><span aria-hidden="true">♥</span> Quero Fazer uma Doação</a>
+        <ul class="cause-benefits" aria-label="Como contribuir"><li>Escolha o valor</li><li>Doe com Pix</li><li>Acompanhe por aqui</li></ul>
+      </div>
+      <div class="hero-visual">
+        <span class="hero-heart" aria-hidden="true">♡</span>
+        <img class="hero-main" src="/images/cao-4.webp" width="738" height="414" fetchpriority="high" decoding="async" alt="Cão de pelagem marrom e preta ao ar livre, ao lado de uma árvore.">
+        <img class="hero-inset" src="/images/cao-2.webp" width="984" height="738" decoding="async" alt="Cão de pelagem clara sentado, olhando para a câmera.">
+        <span class="hero-paw" aria-hidden="true">🐾</span>
+        <p class="photo-note">Um gesto seu.<br><strong>Mais carinho para a causa.</strong></p>
+      </div>
+    </section>
+    <section class="impact" aria-labelledby="impact-title">
+      <div class="section-heading"><h2 id="impact-title">Seu carinho faz a diferença</h2><p>Há muitas formas de estar perto. Contribuir é uma delas.</p></div>
+      <div class="impact-grid">
+        <article><span class="impact-icon" aria-hidden="true">♡</span><h3>Cuidado e proteção</h3><p>Um gesto de solidariedade em favor do bem-estar animal.</p></article>
+        <article><span class="impact-icon" aria-hidden="true">🐾</span><h3>Apoio aos animais</h3><p>Sua contribuição fortalece a causa de quem precisa de cuidado.</p></article>
+        <article><span class="impact-icon" aria-hidden="true">☀</span><h3>Novas oportunidades</h3><p>Juntos, podemos apoiar um futuro com mais acolhimento.</p></article>
+      </div>
     </section>
     <section class="gallery" aria-labelledby="gallery-title">
-      <h2 id="gallery-title">Eles precisam de cuidado e acolhimento 🐾</h2>
-      <p>Conheça alguns dos animais que precisam de atenção, alimentação e cuidados veterinários. Sua contribuição ajuda a apoiar essa causa.</p>
+      <div class="section-heading"><h2 id="gallery-title" tabindex="-1">Conheça os animais que nos inspiram</h2>
+      <p>Olhares que nos lembram por que cada gesto de carinho importa.</p></div>
       <div class="gallery-grid">
         <figure><img src="/images/cao-1.webp" width="678" height="452" loading="lazy" decoding="async" alt="Cão de pelagem cinza usando colar protetor, em pé sobre um tapete."></figure>
         <figure><img src="/images/cao-2.webp" width="984" height="738" loading="lazy" decoding="async" alt="Cão de pelagem clara sentado sobre folhas de jornal."></figure>
@@ -29,7 +50,9 @@
       </div>
     </section>
     <section class="donation" aria-labelledby="donation-title">
+      <div class="donation-heart" aria-hidden="true">♡</div>
       <h2 id="donation-title" tabindex="-1">Quanto você pode doar hoje?</h2>
+      <p class="donation-intro">Escolha um valor e faça parte dessa corrente de cuidado.</p>
       <p id="loading" role="status">Carregando opções de doação…</p>
       <p id="mode-note" class="notice" hidden>Ambiente de teste: nenhum Pix real é gerado. A confirmação aqui é simulada.</p>
       <form id="donation-form" hidden>
@@ -47,7 +70,7 @@
         <button id="generate" type="submit">GERAR PIX PARA DOAR</button>
         <p id="sending" role="status" hidden>Gerando seu Pix. Aguarde nesta página.</p>
       </form>
-      <p id="error" class="error" role="alert" hidden></p>
+      <div class="feedback"><p id="error" class="error" role="alert" hidden></p></div>
       <section id="payment" tabindex="-1" aria-labelledby="payment-title" hidden>
         <h2 id="payment-title">Sua doação</h2>
         <p class="total" id="total"></p><p id="status" role="status" aria-live="polite"></p>
